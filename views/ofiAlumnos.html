@@ -1,0 +1,401 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <link rel="stylesheet" href="/assets/css/modal1.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <link rel="stylesheet" href="/assets/css/btn.css">
+    <link rel="stylesheet" href="/assets/css/base.css">
+</head>
+
+<body>
+
+    <!-- Sprite oculto -->
+    <div id="svg-sprite" style="display:none"></div>
+
+    <div class="min-h-screen bg-gray-50">
+    
+        <div class="space-y-6">
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Oficina de Alumnos</h1>
+                <p class="text-gray-600">Gestión completa de estudiantes: inscripciones, reinscripciones,
+                    actualización de datos y generación de pases.</p>
+            </div>
+               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                 <button onclick="mostrarModal(document.getElementById('modalFormAlumno'))"
+                   class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer w-full p-6 text-center">
+                        <svg class="superDuperIcono rojo mx-auto">
+                            <use xlink:href="#user-plus-outline"></use>
+                        </svg>
+                        <h3 class="font-semibold text-gray-900 mb-2">Nueva Inscripción</h3>
+                        <p class="text-sm text-gray-600">Registrar nuevo estudiante</p>
+                 </button>
+                <div
+                    class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                    <div class="p-6 text-center">
+                        <svg class="superDuperIcono rojo mx-auto">
+                            <use xlink:href="#arrow-roundsquare"></use>
+                        </svg>
+                        <h3 class="font-semibold text-gray-900 mb-2">Reinscripción</h3>
+                        <p class="text-sm text-gray-600">Actualizar inscripción anual</p>
+                    </div>
+          </div>
+                <div  class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                
+                   <div class="p-6 text-center">
+                    <button onclick="mostrarModal(document.getElementById('buscadorAlumno'))">
+                        <svg class="superDuperIcono rojo mx-auto">
+                            <use xlink:href="#pencil-square-outline"></use>
+                        </svg>
+                    <h3 class="font-semibold text-gray-900 mb-2">Actualizar Datos</h3>
+                    <p class="text-sm text-gray-600">Modificar información personal</p>
+                    </button>
+                   </div>
+                </div>
+                <div
+                    class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                    <div class="p-6 text-center">
+                      <button onclick="mostrarModal(document.getElementById('buscadorTutor'))">
+                      <svg class="superDuperIcono rojo mx-auto">
+                            <use xlink:href="#search"></use>
+                        </svg>
+                        <h3 class="font-semibold text-gray-900 mb-2">Consultar tutor</h3>
+                        <p class="text-sm text-gray-600">Informacion de tutor</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+           
+<div class="max-w-4xl mx-auto mt-10">
+  <div class="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+    <h3 class="tracking-tight text-lg font-semibold text-gray-800 text-center">Lista de Alumnos actuales</h3>
+    
+    <!-- Filtros centrados -->
+    <div class="flex justify-center gap-4 mt-4">
+      <select id="selectCursoAnio" class="border rounded-md px-2 py-1">
+        <option value="">Seleccione año</option>
+        <option value="1°">1°</option>
+        <option value="2°">2°</option>
+        <option value="3°">3°</option>
+        <option value="4°">4°</option>
+        <option value="5°">5°</option>
+        <option value="6°">6°</option>
+        <option value="7°">7°</option>
+      </select>
+
+      <select id="selectCursoDivision" class="border rounded-md px-2 py-1">
+        <option value="">Seleccione división</option>
+        <option value="1°">1°</option>
+        <option value="2°">2°</option>
+        <option value="3°">3°</option>
+        <option value="4°">4°</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+
+  <div class="p-6 pt-0">
+    <div class="overflow-x-auto">
+      <table id="alumnosTable" class="w-full table-auto">
+        <thead>
+          <tr class="bg-gradient-to-r from-blue-600 to-blue-700 text-white cursor-default">
+            <th class="px-4 py-3 text-left font-medium">ID</th>
+            <th class="px-4 py-3 text-left font-medium">Legajo</th>
+            <th class="px-4 py-3 text-left font-medium">Nombre</th>
+            <th class="px-4 py-3 text-left font-medium">DNI</th>
+            <th class="px-4 py-3 text-center font-medium">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+        </div>
+    </div>
+    </div>
+
+<!-- modal para buscar alumno -->
+  <div id="buscadorAlumno" class="modal">
+  <div class="modal-content">
+    <div class="container-inscripcion">
+      <span class="close-btn" onclick="cerrarModalPorId('buscadorAlumno')">&times;</span>
+      <h2>Buscar alumno para editar</h2>
+      <input type="text" id="inputDniBuscar" placeholder="Ingrese DNI">
+      <button id="btnBuscarAlumno">Buscar</button>
+    </div>
+   </div>
+  </div>
+<!-- modal para buscar tutores -->
+  <div id="buscadorTutor" class="modal">
+  <div class="modal-content">
+    <div class="container-inscripcion">
+      <span class="close-btn" onclick="cerrarModalPorId('buscadorTutor')">&times;</span>
+      <h2>Buscar tutor de un alumno</h2>
+      <input type="text" id="inputDniBuscarTutor" placeholder="Ingrese DNI">
+      <div class="form-actions">
+      <button id="btnBuscartutor" type="button">Buscar</button>
+      </div>
+      <!-- Aca salen los datos de los alunnos-->
+      <div id="resultadosTutor" class="dynamic-content" style="margin-top: 15px;"></div>
+    </div>
+  </div>
+</div>
+
+      <!-- modal para ver mas informacion del alumno -->
+<div id="modalVerMas" class="modal">
+  <div class="modal-content">
+    <div class="container-inscripcion">
+      <span class="close-btn" onclick="cerrarModalPorId('modalVerMas')">&times;</span>
+       <h2 class="text-white bg-blue-400 w-full text-center p-3 rounded-t-lg">
+        Detalles del alumno
+      </h2>
+      <div id="detalleAlumno">
+        <!-- se rellena de datos que agarra el backend y controller lo moldea  -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+    <!-- Modal crear -->
+<div id="modalFormAlumno" class="modal">
+  <div class="modal-content">
+
+    <div class="container-inscripcion">
+       <span class="close-btn" onclick="cerrarModalPorId('modalFormAlumno')">&times;</span>
+      <h2>Formulario de Inscripción de Alumnos</h2>
+
+      <form id="formAlumno" class="form-grid">
+        <input type="hidden" name="id_alumno" />
+        <input type="hidden" name="id_tutor" />
+
+        <!-- Sección Alumno -->
+        <fieldset>
+          <legend>Datos del Alumno</legend>
+
+          <label for="legajo">Legajo</label>
+          <input type="text" id="legajo" name="legajo" placeholder="Legajo" maxlength="8" required>
+
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Nombre" maxlength="15"required>
+
+          <label for="apellido">Apellido</label>
+          <input type="text" id="apellido" name="apellido" placeholder="Apellido" maxlength="15"required>
+
+          <label for="dni">DNI</label>
+          <input type="text" id="dni" name="dni" placeholder="DNI" maxlength="8" required>
+
+          <label for="cuil">CUIL</label>
+          <input type="text" id="cuil" name="cuil" placeholder="CUIL" maxlength="11" required>
+
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="Email" maxlength="25"required>
+
+          <label for="direccion">Dirección</label>
+          <input type="text" id="direccion" name="direccion" placeholder="Dirección" maxlength="25">
+
+          <label for="link_docu">Link Documento</label>
+          <input type="text" id="link_docu" name="link_docu" placeholder="Link Documento" maxlength="80">
+
+          <label for="fecha_nacimiento">Fecha de Nacimiento</label>
+          <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
+
+          <label for="hermanos">¿Tiene hermanos en la institución?</label>
+          <select id="hermanos" name="hermanos">
+            <option value="true">Sí</option>
+            <option value="false">No</option>
+          </select>
+        </fieldset>
+
+        <!-- Sección Tutor -->
+        <fieldset>
+          <legend>Datos del Tutor</legend>
+
+          <label for="tutor_nombre">Nombre</label>
+          <input type="text" id="tutor_nombre" name="tutor_nombre" placeholder="Nombre del Tutor" maxlength="15" required>
+
+          <label for="tutor_apellido">Apellido</label>
+          <input type="text" id="tutor_apellido" name="tutor_apellido" placeholder="Apellido del Tutor" maxlength="15" required>
+
+          <label for="tutor_dni">DNI</label>
+          <input type="text" id="tutor_dni" name="tutor_dni"  placeholder="DNI del Tutor" maxlength="8" required>
+
+
+          <label for="tutor_cuil">CUIL</label>
+          <input type="text" id="tutor_cuil" name="tutor_cuil" placeholder="CUIL del Tutor" maxlength="11" required>
+
+          <label for="tutor_telefono">Teléfono</label>
+          <input type="tel" id="tutor_telefono" name="tutor_telefono" placeholder="Teléfono del Tutor" maxlength="15">
+
+          <label for="tutor_email">Email</label>
+          <input type="email" id="tutor_email" name="tutor_email" placeholder="Email del Tutor" maxlength="25">
+
+          <label for="tutor_direccion">Dirección</label>
+          <input type="text" id="tutor_direccion" name="tutor_direccion" placeholder="Dirección del Tutor" maxlength="25">
+        </fieldset>
+
+        <button type="submit">Agregar Alumno</button>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- Modal para Editar Alumno -->
+<div id="modalEditarAlumno" class="modal">
+  <div class="modal-content">
+
+    <div class="container-inscripcion">
+          <span class="close-btn" onclick="cerrarModalPorId('modalEditarAlumno')">&times;</span>
+      <h2>Editar Datos del Alumno</h2>
+
+      <form id="formAlumnoEditar">
+        <input type="hidden" name="id_alumno" />
+        <input type="hidden" name="id_tutor" />
+
+        <fieldset>
+          <legend>Datos del Alumno</legend>
+
+          <label for="edit_legajo">Legajo</label>
+          <input type="text" id="edit_legajo" name="legajo" class="only-numbers" maxlength="8" required>
+
+          <label for="edit_nombre">Nombre</label>
+          <input type="text" id="edit_nombre" name="nombre" maxlength="15" required>
+
+          <label for="edit_apellido">Apellido</label>
+          <input type="text" id="edit_apellido" name="apellido" maxlength="15" required>
+
+          <label for="edit_dni">DNI</label>
+          <input type="text" id="edit_dni" name="dni" maxlength="8" required>
+
+          <label for="edit_cuil">CUIL</label>
+          <input type="text" id="edit_cuil" name="cuil" maxlength="11" required>
+
+          <label for="edit_email">Email</label>
+          <input type="email" id="edit_email" name="email" maxlength="30">
+
+          <label for="edit_direccion">Dirección</label>
+          <input type="text" id="edit_direccion" name="direccion" maxlength="50" required>
+
+          <label for="edit_link_docu">Link Documentación</label>
+          <input type="text" id="edit_link_docu" name="link_docu" maxlength="100">
+
+          <label for="edit_hermanos">¿Tiene hermanos en la escuela?</label>
+          <select id="edit_hermanos" name="hermanos" required>
+            <option value="false">No</option>
+            <option value="true">Sí</option>
+          </select>
+
+          <label for="edit_fecha_nacimiento">Fecha de nacimiento</label>
+          <input type="date" id="edit_fecha_nacimiento" name="fecha_nacimiento" required>
+        </fieldset>
+
+        <fieldset>
+          <legend>Datos del Tutor</legend>
+
+          <label for="edit_tutor_nombre">Nombre</label>
+          <input type="text" id="edit_tutor_nombre" name="tutor_nombre" maxlength="15" >
+
+          <label for="edit_tutor_apellido">Apellido</label>
+          <input type="text" id="edit_tutor_apellido" name="tutor_apellido" maxlength="15" >
+
+          <label for="edit_tutor_dni">DNI</label>
+          <input type="text" id="edit_tutor_dni" name="tutor_dni" maxlength="8">
+
+          <label for="edit_tutor_cuil">CUIL</label>
+          <input type="text" id="edit_tutor_cuil" name="tutor_cuil" maxlength="11" >
+
+          <label for="edit_tutor_telefono">Teléfono</label>
+          <input type="text" id="edit_tutor_telefono" name="tutor_telefono" maxlength="15">
+
+          <label for="edit_tutor_email">Email</label>
+          <input type="email" id="edit_tutor_email" name="tutor_email" maxlength="30">
+
+          <label for="edit_tutor_direccion">Dirección</label>
+          <input type="text" id="edit_tutor_direccion" name="tutor_direccion" maxlength="50">
+        </fieldset>
+
+        <button type="submit">Guardar Cambios</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const altura = document.documentElement.scrollHeight;
+
+    // Enviamos un mensaje al documento padre (index.html)
+    parent.postMessage({
+      tipo: "ajustarAltura",
+      altura: altura
+    }, "*");
+
+    // Interceptar envío de formularios y limpiar formato antes de enviar
+    const formCrear = document.getElementById('formAlumno');
+    const formEditar = document.getElementById('formAlumnoEditar');
+
+    if (formCrear) {
+      formCrear.addEventListener('submit', () => {
+        limpiarDatosAntesDeEnviar(formCrear);
+      });
+    }
+
+    if (formEditar) {
+      formEditar.addEventListener('submit', () => {
+        limpiarDatosAntesDeEnviar(formEditar);
+      });
+    }
+  });
+
+  function limpiarDatosAntesDeEnviar(form) {
+    const camposFormateados = [
+      'dni', 'cuil', 'tutor_dni', 'tutor_cuil',
+      'edit_dni', 'edit_cuil', 'edit_tutor_dni', 'edit_tutor_cuil'
+    ];
+
+    camposFormateados.forEach(id => {
+      const input = form.querySelector(`#${id}`);
+      if (input) {
+        input.value = input.value.replace(/\D/g, ''); // Deja solo números
+      }
+    });
+  }
+</script>
+
+<script>
+  window.addEventListener("load", () => {
+    const altura = document.documentElement.scrollHeight;
+    
+    // Enviamos un mensaje al documento padre (index.html)
+    parent.postMessage({
+      tipo: "ajustarAltura",
+      altura: altura
+    }, "*");
+  });
+</script>
+<script src="/assets/js/formulariosDinamicos.js"></script>
+<script src="/assets/js/busquedamodal.js"></script>
+<script src="/assets/js/controllers/alumnos.js"></script>
+<script src="/assets/js/controllers/tutores.js"></script>
+<script src="/assets/js/modal.js"></script>
+<script src="/assets/js/js/pageAccess.js"></script>
+<script src="/assets/js/validacionesFormulario.js"></script>
+
+<script>
+    //Cargar iconos
+    fetch('/assets/icons/iconos.svg')
+    .then(res => res.text())
+    .then(data => {
+        document.getElementById('svg-sprite').innerHTML = data;
+    });
+</script>
+
+</body>
+
+</html>

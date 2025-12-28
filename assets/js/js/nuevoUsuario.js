@@ -48,7 +48,7 @@ document.getElementById('formAgregarUsuario').addEventListener('submit', async f
     };
 
     try {
-        const res = await fetch('http://localhost:3000/api/usuarios/registrar', {
+        const res = await fetch('http://localhost:3000/api/usuarios', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
@@ -67,7 +67,6 @@ document.getElementById('formAgregarUsuario').addEventListener('submit', async f
             cargarUsuarios && cargarUsuarios();
             if (typeof cargarUsuariosPorRol === "function") cargarUsuariosPorRol();
         } else {
-            console.error('Error al agregar usuario:', res.status, res.statusText);
             const txt = await res.text();
             alert('Error: ' + txt);
         }

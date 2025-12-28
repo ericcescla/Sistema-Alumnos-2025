@@ -3,7 +3,7 @@
 let usuarioCambioClave = null;
 
 // Login with session storage in localStorage
-document.getElementById('loginForm').onsubmit = async function(e) {
+document.getElementById('loginForm').onsubmit = async function (e) {
     e.preventDefault();
     const usuario = document.getElementById('usuario').value.trim();
     const password = document.getElementById('password').value.trim();
@@ -12,7 +12,7 @@ document.getElementById('loginForm').onsubmit = async function(e) {
 
     const res = await fetch('http://localhost:3000/api/usuarios/login', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usuario, password })
     });
     const data = await res.json();
@@ -30,14 +30,15 @@ document.getElementById('loginForm').onsubmit = async function(e) {
         msg.style.color = 'green';
         msg.textContent = '¡Login exitoso!';
         localStorage.setItem('usuario', JSON.stringify(data.user));
-        setTimeout(()=>window.location.href="/", 500);
+        setTimeout(() => window.location.href = "/", 500);
     } else {
         msg.style.color = 'red';
-        msg.textContent = data.message || 'Usuario o contraseña incorrectos';
+        msg.textContent = data.mess
+        msg.textContent = data.message || 'Credenciales invalidas.';
     }
-};
 
-// If already logged in, redirect to index
-if (localStorage.getItem('usuario')) {
-    window.location.href = "/";
+    // Redirect to index
+    if (localStorage.getItem('usuario')) {
+        window.location.href = "/";
+    }
 }

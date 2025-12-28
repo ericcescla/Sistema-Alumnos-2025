@@ -1,6 +1,11 @@
 const express = require('express');
 const app = express();
 // const conexion = require('./test_db.js')
+const controller = require('./usuarios/usuarios.controller');
+ const service = require("./usuarios/usuarios.services");
+const repo = require("./usuarios/usuarios.repository");
+const db = require('./dbUsers.js');
+
 
 const cors = require('cors');
 app.use(cors());
@@ -33,8 +38,10 @@ app.get('/', (req, res) => {
 const logsRouter = require('./routes/logs');
 app.use('/api/logs', logsRouter);
 
-const usuariosRouter = require('./routes/usuarios');
+// const usuariosRouter = require('./routes/usuarios');
+const usuariosRouter = require('./usuarios/usuarios.routes');
 app.use('/api/usuarios', usuariosRouter);
+
 
 const alumnosRouter = require('./routes/alumnos');
 app.use('/alumnos', alumnosRouter);
@@ -49,11 +56,11 @@ const planesRouter = require('./routes/planes');
 app.use('/planes', planesRouter);
 
 const tutoresRouter = require('./routes/tutores');
+const { Result } = require('pg');
 app.use('/tutores', tutoresRouter);
 
-
-// Inicio del servidor
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//   console.log(`Servidor escuchando en puerto http://localhost:${PORT}`);
-// });
+// Inicios del servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en puerto http://localhost:${PORT}`);
+});

@@ -27,7 +27,7 @@ const validarNuevaContraseña = [
   body("nuevaPassword").notEmpty().withMessage("Nueva contraseña requerida"),
 ];
 
-const passwordValidatorContrseañaNueva = body("password")
+const passwordValidatorContrseañaNueva = body("nuevaPassword")
   .isLength({ min: 8, max: 16 })
   .withMessage("La contraseña debe tener entre 8 y 16 caracteres")
   .matches(/[A-Z]/)

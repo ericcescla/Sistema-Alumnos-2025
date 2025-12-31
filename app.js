@@ -33,7 +33,8 @@ app.get('/', (req, res) => {
 const logsRouter = require('./routes/logs');
 app.use('/api/logs', logsRouter);
 
-const usuariosRouter = require('./routes/usuarios');
+const usuariosRouter = require('./usuarios/usuarios.routes');
+// const usuariosRouter = require('./routes/usuarios');
 app.use('/api/usuarios', usuariosRouter);
 
 const alumnosRouter = require('./routes/alumnos');
@@ -53,7 +54,7 @@ app.use('/tutores', tutoresRouter);
 
 
 // Inicio del servidor
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//   console.log(`Servidor escuchando en puerto http://localhost:${PORT}`);
-// });
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en puerto http://localhost:${PORT}`);
+});

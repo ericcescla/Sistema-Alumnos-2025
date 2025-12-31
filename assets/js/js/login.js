@@ -33,7 +33,7 @@ document.getElementById('loginForm').onsubmit = async function(e) {
         setTimeout(()=>window.location.href="/", 500);
     } else {
         msg.style.color = 'red';
-        msg.textContent = data.message || 'Usuario o contraseña incorrectos';
+        msg.textContent = data.message || 'Usuario o contraseña incorrectos // mensaje del fronted';
     }
 };
 

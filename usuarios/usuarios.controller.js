@@ -8,7 +8,7 @@ async function login(req, res) {
     if (!result.success) {
       return res.status(401).json(result);
     }
-    console.log(result, "resultado del login");
+    // console.log(result, "resultado del login");
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });

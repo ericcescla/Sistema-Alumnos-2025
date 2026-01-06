@@ -1,10 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('./usuarios.controller');
-const { passwordValidator,
-  validarDatos,
-  validarNuevaContraseña,
-  validarErrores, } = require('./usuarios.milddleware');
+const milddleware = require('./usuarios.milddleware');
 
 router.get('/',
   controller.listarUsuarios
@@ -16,9 +13,9 @@ router.post('/login',
 
 router.post(
   '/registrar',
-  validarDatos,
-  passwordValidator,
-  validarErrores,
+  milddleware.validarDatos,
+  milddleware.passwordValidator,
+  milddleware.validarErrores,
   controller.registrar
 );
 
@@ -59,8 +56,8 @@ router.put('/:id/deshabilitar',
 
 router.put(
   '/:id/cambiar-password',
-  validarNuevaContraseña,
-  validarErrores,
+  milddleware.validarNuevaContraseña,
+  milddleware.validarErrores,
   controller.cambiarPassword
 );
 

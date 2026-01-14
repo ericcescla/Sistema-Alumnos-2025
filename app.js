@@ -37,7 +37,9 @@ const usuariosRouter = require('./usuarios/usuarios.routes');
 // const usuariosRouter = require('./routes/usuarios');
 app.use('/api/usuarios', usuariosRouter);
 
-const alumnosRouter = require('./routes/alumnos');
+//usamos la rutas refactorizadas pero sin testeo eric 
+const alumnosRouter = require('./alumnos/alumnos.routes');
+// const alumnosRouter = require('./routes/alumnos');
 app.use('/alumnos', alumnosRouter);
 
 const materiasRouter = require('./routes/materias');

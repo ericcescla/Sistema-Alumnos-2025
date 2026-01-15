@@ -30,7 +30,9 @@ app.get('/', (req, res) => {
 });
 
 // Rutas de la app
-const logsRouter = require('./routes/logs');
+
+const logsRouter = require('./log/logs.routes');
+// const logsRouter = require('./routes/logs');
 app.use('/api/logs', logsRouter);
 
 const usuariosRouter = require('./usuarios/usuarios.routes');

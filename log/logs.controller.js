@@ -14,9 +14,12 @@ async function obternerLogs(req, res) {
             limit: Number(limit),
             totalPages: Math.ceil(result.total / limit)
         });
+        
     } catch (error) {
+
         console.error('Error en /api/logs:', error);
         res.status(500).json({ error: 'Error al obtener los logs.' });
+        
     }
 
 }
@@ -25,20 +28,21 @@ async function hacerLog(req, res) {
 
     try {
         const { id_operacion, id_usuario, detalle, ip, usuario_afectado } = req.body;
-
-        const status = await service.registrarLog(id_operacion, id_usuario, detalle, ip, usuario_afectado);
-        console.log(req.body);
-
+        await service.registrarLog(id_operacion, id_usuario, detalle, ip, usuario_afectado);
         res.json(200);
+
     } catch (error) {
+
         console.error('Error al insertar log:', error);
         res.status(500).json({ error: 'Error al insertar log.' });
+    
     }
 }
 
 async function ultimosLogs(req, res) {
 
     try {
+        
         const result = await service.ultimosLogs();
         res.json(
             result.rows.map(log => ({
@@ -48,8 +52,10 @@ async function ultimosLogs(req, res) {
                 detalle: log.detalle,
                 usuario_afectado: log.usuario_afectado
             }))
+      
         );
     } catch (error) {
+        
         console.error('Error en el endpoint de logs', error);
         res.status(500).json({ error: 'Error al obtener los últimos logs.' });
 

@@ -55,7 +55,6 @@ async function obternerLogs(search, fechaInicio, fechaFin, limit, offset) {
   const total = Number(countResult.rows[0].total);
 
   const dataResult = await db.query(dataSql, [...params, Number(limit), Number(offset)]);
-    // console.log(dataResult.rows, total);
     
   return result = {
     rows: dataResult.rows, 
@@ -64,13 +63,7 @@ async function obternerLogs(search, fechaInicio, fechaFin, limit, offset) {
 
 }
 
-async function registrarLog(
-  idOperacion,
-  idUsuario,
-  ip,
-  detalle,
-  usuarioAfectado
-) {
+async function registrarLog(idOperacion, idUsuario, ip, detalle, usuarioAfectado) {
   db.query(
     `
       INSERT INTO logs (id_operacion, hora_y_fecha, id_usuario, mac, ip, detalle, usuario_afectado)

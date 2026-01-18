@@ -13,12 +13,12 @@ async function login(usuario, password, ip) {
 
   // 2. Verificar estado administrativo
   if (user.deshabilitado) {
-    await registrarLog(2, user.id_usuario, ip, 'Intento de login usuario deshabilitado');
+    await registrarLog(2, user.id_usuario, 'Intento de login usuario deshabilitado');
     return { success: false, message: 'Usuario deshabilitado' };
   }
 
   if (user.bloqueado) {
-    await registrarLog(3, user.id_usuario, ip, 'Intento de login de usuario bloqueado');
+    await registrarLog(3, user.id_usuario,  'Intento de login de usuario bloqueado');
     return { success: false, message: 'Usuario bloqueado' };
   }
 
@@ -31,13 +31,13 @@ async function login(usuario, password, ip) {
     if (sessionIntentos >= 3) {
 
       await repo.bloquearUsuario(user.id_usuario, sessionIntentos);
-      await registrarLog(5, user.id_usuario, ip, 'Usuario bloqueado por intentos fallidos');
+      await registrarLog(5, user.id_usuario, 'Usuario bloqueado por intentos fallidos');
       return { success: false, message: 'Usuario bloqueado' };
 
     }
 
     await repo.incrementarIntentos(user.id_usuario, sessionIntentos);
-    await registrarLog(4, user.id_usuario, ip, 'contraseña incorrecta');
+    await registrarLog(4, user.id_usuario, 'contraseña incorrecta');
 
     return { success: false, message:`contraseña incorrecta intentos: ${sessionIntentos}`} 
 
@@ -45,7 +45,7 @@ async function login(usuario, password, ip) {
 
   // 4. Autenticación exitosa
   await repo.resetIntentos(user.id_usuario);
-  await registrarLog(1, user.id_usuario, ip, 'Login exitoso!!');
+  await registrarLog(1, user.id_usuario,  'Login exitoso!!');
 
   // 5. Políticas post-login (expiración de contraseña)
   const passHist = await repo.obtenerPassHist(user.id_usuario);

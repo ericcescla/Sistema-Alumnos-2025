@@ -54,7 +54,8 @@ app.use('/cursos', cursosRouter);
 const planesRouter = require('./routes/planes');
 app.use('/planes', planesRouter);
 
-const tutoresRouter = require('./routes/tutores');
+const tutoresRouter = require('./tutor/tutor.route');
+// const tutoresRouter = require('./routes/tutores');
 app.use('/tutores', tutoresRouter);
 
 

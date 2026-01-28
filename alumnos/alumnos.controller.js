@@ -1,4 +1,4 @@
-const services = require('./alumnos.services');
+const services = require('./alumnos.service');
 
 async function listarAlumnos(req, res) {
   const { anio, division } = req.query; 

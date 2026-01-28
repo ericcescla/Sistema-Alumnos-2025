@@ -9,7 +9,6 @@ async function crearCurso(anio, division, id_plan, anio_lectivo) {
     const { rows } = await repo.findCursoExistente(
         anio_lectivo, anio, division,
     );
-    console.log(rows);
 
     if (rows[0].exists) {
         throw new Error(`El curso ${anio}${division} del año ${anio_lectivo} ya existe`);

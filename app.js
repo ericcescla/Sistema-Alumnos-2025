@@ -1,10 +1,14 @@
+const logsRouter = require('./log/logs.routes');
+const usuariosRouter = require('./usuarios/usuarios.routes');
+const alumnosRouter = require('./alumnos/alumnos.routes');
+const materiasRouter = require('./routes/materias');
+const cursosRouter = require('./cursos/cursos.routes');
+const planesRouter = require('./routes/planes');
+const tutoresRouter = require('./tutor/tutor.route');
 const express = require('express');
 const app = express();
-// const conexion = require('./test_db.js')
-
 const cors = require('cors');
 app.use(cors());
-
 const path = require('path');
 
 
@@ -25,38 +29,16 @@ app.use('/assets', express.static('assets'));
 app.use('/views', express.static('views'));
 
 // Ruta para servir index.html
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.get('/', (req, res) => {res.sendFile(path.join(__dirname, 'index.html'));});
 
 // Rutas de la app
-
-const logsRouter = require('./log/logs.routes');
-// const logsRouter = require('./routes/logs');
-app.use('/api/logs', logsRouter);
-
-const usuariosRouter = require('./usuarios/usuarios.routes');
-// const usuariosRouter = require('./routes/usuarios');
+app.use('/api/tutores', tutoresRouter);
+app.use('/api/planes', planesRouter);
+app.use('/api/cursos', cursosRouter);
+app.use('/api/materias', materiasRouter);
+app.use('/api/alumnos', alumnosRouter);
 app.use('/api/usuarios', usuariosRouter);
-
-//usamos la rutas refactorizadas pero sin testeo eric 
-const alumnosRouter = require('./alumnos/alumnos.routes');
-// const alumnosRouter = require('./routes/alumnos');
-app.use('/alumnos', alumnosRouter);
-
-const materiasRouter = require('./routes/materias');
-app.use('/materias', materiasRouter);
-
-const cursosRouter = require('./cursos/cursos.routes');
-// const cursosRouter = require('./routes/cursos');
-app.use('/cursos', cursosRouter);
-
-const planesRouter = require('./routes/planes');
-app.use('/planes', planesRouter);
-
-const tutoresRouter = require('./tutor/tutor.route');
-// const tutoresRouter = require('./routes/tutores');
-app.use('/tutores', tutoresRouter);
+app.use('/api/logs', logsRouter);
 
 
 // Inicio del servidor

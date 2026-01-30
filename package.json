@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "cls && node server.js",
-    "dev": "cls && nodemon server.js",
+    "dev": "cls && nodemon app.js",
     "test": "jest --runInBand"
   },
   "dependencies": {

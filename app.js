@@ -40,6 +40,9 @@ app.use('/api/usuarios', usuariosRouter);
 app.use('/api/logs', logsRouter);
 
 
-// exports.app = app;module.exports = { app };
-module.exports = { app };
 
+// Inicio del servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en puerto http://localhost:${PORT}`);
+});

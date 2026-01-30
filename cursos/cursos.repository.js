@@ -49,16 +49,40 @@ async function findCursoExistente(anioLectivo, anio, division) {
 
 }
 
-async function asignarCurso(idAlumno, idCurso) {
-  return db.query(`
+asignarCurso = async (idAlumno, idCurso) => {
+  const result = await db.query(`
     INSERT INTO alumno_curso (id_alumno, id_curso)
     VALUES ($1, $2)
+    RETURNING *;
   `, [idAlumno, idCurso]);
+
+  return result.rows[0];
+}
+
+alumnoYaAsignado = async (idAlumno, idCurso) => {
+  return db.query(`
+    SELECT EXISTS (
+      SELECT 1
+      FROM alumno_curso
+      WHERE id_alumno = $1
+    );
+  `, [idAlumno]);
+}
+
+cursoDeAlumno = async (idAlumno) => {
+  return db.query(`
+    SELECT c.*
+    FROM curso c
+    JOIN alumno_curso ac ON ac.id_curso = c.id_curso
+    WHERE ac.id_alumno = $1
+  `, [idAlumno]);
 }
 module.exports = {
   obternerCursos,
   crearCurso,
   alumnosPorCurso,
-  findCursoExistente, 
-  asignarCurso
+  findCursoExistente,
+  asignarCurso,
+  alumnoYaAsignado,
+  cursoDeAlumno
 }

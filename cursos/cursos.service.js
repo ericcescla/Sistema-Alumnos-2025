@@ -32,14 +32,17 @@ async function alumnosPorCurso(anioLectivo, anio, division) {
 
 
 asignarCurso = async (idAlumno, idCurso) => {
-    await repo.asignarCurso(idAlumno, idCurso);
+    const { rows } = await repo.alumnoYaAsignado(idAlumno, idCurso);
+
+    if (rows[0].exists) {
+        throw new Error("El alumno ya esta asignado a un curso");
+    }
+
+    const result = await repo.asignarCurso(idAlumno, idCurso);
+    console.log(result);
+    
+    return "Curso asignado correctamente";
 }
-
-
-// async function asignarCurso(idAlumno, idCurso) {
-//     await repo.asignarCurso(idAlumno, idCurso);
-
-// }
 
 module.exports = {
     obtenerCursos, crearCurso, alumnosPorCurso, asignarCurso

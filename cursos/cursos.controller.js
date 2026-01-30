@@ -34,8 +34,6 @@ async function crearCursos(req, res) {
 
 async function alumnosPorCursos(req, res) {
   const { anioLectivo, anio, division } = req.query;
-  console.log(req.query);
-  
 
   try {
 
@@ -51,10 +49,10 @@ async function alumnosPorCursos(req, res) {
 }
 
 asignarCurso = async (req, res) => {
-  const { idAlumno, idCurso } = req.params;
+  const { idAlumno, idCurso } = req.body;
   try {
-    await services.asignarCurso(idAlumno, idCurso);
-    return res.json({ mensaje: 'Curso asignado correctamente' });
+     
+    return res.json(await services.asignarCurso(idAlumno, idCurso));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -63,9 +61,7 @@ asignarCurso = async (req, res) => {
 }
 
 // async function asignarCurso(req, res) {
-//   console.log(req);
-  
-//     const { idAlumno, idCurso } = req.params;
+//     const { idAlumno, idCurso } = req.body;
 //   try {
 //     await services.asignarCurso(idAlumno, idCurso);
 //     return res.json({ mensaje: 'Curso asignado correctamente' });

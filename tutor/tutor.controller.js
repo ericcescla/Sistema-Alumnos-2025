@@ -13,7 +13,7 @@ async function obtenerTutores(req, res) {
 
 async function buscarTutor(req, res) {
     const { dni } = req.query;
-    console.log(req);
+    // console.log(req);
     
     
     if (!dni) {

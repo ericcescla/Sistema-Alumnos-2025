@@ -1,17 +1,17 @@
 const services = require('./cursos.service');
 
 async function obtenerCursos(req, res) {
-  
+
   try {
-  
+
     const result = await services.obtenerCursos();
     res.json(result);
-  
+
   } catch (error) {
-  
+
     console.log(error);
     res.status(500).json({ error: error.message });
-  
+
   }
 }
 
@@ -34,18 +34,45 @@ async function crearCursos(req, res) {
 
 async function alumnosPorCursos(req, res) {
   const { anioLectivo, anio, division } = req.query;
+  console.log(req.query);
+  
 
   try {
 
     const result = await services.alumnosPorCurso(anioLectivo, anio, division);
     res.json(result);
-  
+
   } catch (error) {
-  
+
     console.log('Error en /alumnosCurso:', error);
     res.status(500).json({ error: error.message });
-  
+
   }
 }
 
-module.exports = { alumnosPorCursos, obtenerCursos, crearCursos };
+asignarCurso = async (req, res) => {
+  const { idAlumno, idCurso } = req.params;
+  try {
+    await services.asignarCurso(idAlumno, idCurso);
+    return res.json({ mensaje: 'Curso asignado correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+
+}
+
+// async function asignarCurso(req, res) {
+//   console.log(req);
+  
+//     const { idAlumno, idCurso } = req.params;
+//   try {
+//     await services.asignarCurso(idAlumno, idCurso);
+//     return res.json({ mensaje: 'Curso asignado correctamente' });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: error.message });
+//   }
+// }
+
+module.exports = { alumnosPorCursos, obtenerCursos, crearCursos, asignarCurso };

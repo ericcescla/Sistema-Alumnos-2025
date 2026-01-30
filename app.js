@@ -6,11 +6,10 @@ const cursosRouter = require('./cursos/cursos.routes');
 const planesRouter = require('./routes/planes');
 const tutoresRouter = require('./tutor/tutor.route');
 const express = require('express');
-const app = express();
 const cors = require('cors');
-app.use(cors());
 const path = require('path');
-
+const app = express();
+app.use(cors());
 
 // Para eliminar el cache y que no se pueda volver con el boton de back luego de que hacemos un LOGOUT
 app.use(function(req, res, next) {
@@ -41,8 +40,6 @@ app.use('/api/usuarios', usuariosRouter);
 app.use('/api/logs', logsRouter);
 
 
-// Inicio del servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto http://localhost:${PORT}`);
-});
+// exports.app = app;module.exports = { app };
+module.exports = { app };
+

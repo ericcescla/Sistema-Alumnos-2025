@@ -23,9 +23,24 @@ async function crearCurso(anio, division, id_plan, anio_lectivo) {
 
 async function alumnosPorCurso(anioLectivo, anio, division) {
     const result = await repo.alumnosPorCurso(anioLectivo, anio, division);
+    if (result.rows.length === 0) {
+        throw new Error("No hubo concidencia con lo datos");
+        
+    }
     return result.rows;
 }
 
+
+asignarCurso = async (idAlumno, idCurso) => {
+    await repo.asignarCurso(idAlumno, idCurso);
+}
+
+
+// async function asignarCurso(idAlumno, idCurso) {
+//     await repo.asignarCurso(idAlumno, idCurso);
+
+// }
+
 module.exports = {
-    obtenerCursos, crearCurso, alumnosPorCurso
+    obtenerCursos, crearCurso, alumnosPorCurso, asignarCurso
 }

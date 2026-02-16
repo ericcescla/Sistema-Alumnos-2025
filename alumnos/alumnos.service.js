@@ -1,4 +1,5 @@
 const repo = require("./alumnos.repository");
+const pool = require('../dbDatos');
 
 async function obtenerAlumnos(anio, division) {
   const result = await repo.obtenerAlumnosAnioDivision(anio, division);
@@ -6,13 +7,19 @@ async function obtenerAlumnos(anio, division) {
 }
 
 async function buscarAlumnoPorDni(dni) {
-  const result = await repo.buscarAlumnoPorDni(dni);
-
-  if (result.length === 0) {
-    error: "alumno no encontrado";
+  const alumno = await repo.buscarAlumnoPorDni(dni);
+  
+  if (!alumno) {
+    throw new Error('Alumno no encontrado');
   }
 
-  return result;
+  // Buscar si tiene curso asignado
+  const cursoAsignado = await repo.obtenerCursoActualAlumno(alumno.id_alumno);
+  
+  return {
+    ...alumno,
+    curso_asignado: cursoAsignado
+  };
 }
 //falta probar si funcina todo bien 
 async function crearAlumnoyTutor(Alumno, Tutor) {
@@ -24,10 +31,10 @@ async function crearAlumnoyTutor(Alumno, Tutor) {
     const tutorExistente = await repo.encontrarTutor(Tutor.dni);
     if (tutorExistente > 0 ) {
       const id_tutor = tutorExistente[0].id_tutor;
-      await repo.asociarAlumnoTutor(client, id_alumno, id_tutor);
+      await repo.vincularAlumnoTutor(client, id_alumno, id_tutor);
     } else {
       const id_tutor = await repo.crearTutor(client, Tutor);
-      await repo.asociarAlumnoTutor(client, id_alumno, id_tutor);
+      await repo.vincularAlumnoTutor(client, id_alumno, id_tutor);
     }
     await client.query("COMMIT");
     return { message: "Alumno y tutor insertados con éxito" };
@@ -60,5 +67,6 @@ async function actualizarAlumnoyTutor(Alumno, Tutor) {
 module.exports = {
   obtenerAlumnos,
   buscarAlumnoPorDni,
-  crearAlumnoyTutor
+  crearAlumnoyTutor,
+  actualizarAlumnoyTutor
 };

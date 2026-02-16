@@ -125,6 +125,7 @@ router.get('/ultimos', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { id_operacion, id_usuario, detalle, ip, usuario_afectado } = req.body;
+      console.log('🔍 Endpoint /api/logs recibe:', { id_operacion, id_usuario, detalle, ip, usuario_afectado });
     await db.query(`
       INSERT INTO logs (id_operacion, hora_y_fecha, id_usuario, mac, ip, detalle, usuario_afectado)
       VALUES ($1, NOW(), $2, NULL, $3, $4, $5)

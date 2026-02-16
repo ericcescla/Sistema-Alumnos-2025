@@ -113,6 +113,19 @@ async function actualizarTutor(client, Tutor) {
     [Tutor.nombre, Tutor.apellido, Tutor.dni, Tutor.cuil, Tutor.telefono, Tutor.email, Tutor.direccion, Tutor.id_tutor]
   );
 }
+async function obtenerCursoActualAlumno(id_alumno) {
+  const result = await db.query(`
+    SELECT c.anio, c.division, c.anio_lectivo, p.nombre_plan
+    FROM alumno_curso ac
+    JOIN curso c ON ac.id_curso = c.id_curso
+    JOIN plan p ON c.id_plan = p.id_plan
+    WHERE ac.id_alumno = $1
+    ORDER BY c.anio_lectivo DESC
+    LIMIT 1
+  `, [id_alumno]);
+
+  return result.rows.length > 0 ? result.rows[0] : null;
+}
 
 module.exports = {
   obtenerAlumnosAnioDivision,
@@ -122,6 +135,7 @@ module.exports = {
   vincularAlumnoTutor,
   encontrarTutor,
   actualizarAlumno,
-  actualizarTutor
+  actualizarTutor,
+  obtenerCursoActualAlumno
 }
 

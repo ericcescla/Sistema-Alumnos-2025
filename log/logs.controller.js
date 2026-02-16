@@ -62,4 +62,16 @@ async function ultimosLogs(req, res) {
     }
 }
 
-module.exports = { hacerLog, ultimosLogs, obternerLogs }
+/* NUEVO HANDLER: lista operaciones para poblar selects */
+async function listarOperaciones(req, res) {
+  try {
+    const operaciones = await service.obtenerOperaciones();
+    // operaciones es un array de { id_operacion, descripcion }
+    res.json(operaciones);
+  } catch (error) {
+    console.error('Error al obtener operaciones:', error);
+    res.status(500).json({ error: 'Error al obtener operaciones' });
+  }
+}
+
+module.exports = { hacerLog, ultimosLogs, obternerLogs, listarOperaciones }

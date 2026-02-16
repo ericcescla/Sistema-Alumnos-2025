@@ -7,4 +7,7 @@ router.get('/', controller.obternerLogs);
 router.get('/ultimos', controller.ultimosLogs);
 router.post('/', controller.hacerLog);
 
+/* NUEVA RUTA: devuelve las operaciones (para poblar el select) */
+router.get('/operaciones', controller.listarOperaciones);
+
 module.exports = router;

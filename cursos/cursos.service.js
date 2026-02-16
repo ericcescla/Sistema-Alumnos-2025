@@ -25,7 +25,20 @@ async function alumnosPorCurso(anioLectivo, anio, division) {
     const result = await repo.alumnosPorCurso(anioLectivo, anio, division);
     return result.rows;
 }
+async function obtenerAlumnosSinCurso(anioLectivo) {
+  return await repo.obtenerAlumnosSinCurso(anioLectivo);
+}
 
+async function asignarAlumnoACurso(id_alumno, anio, division, anio_lectivo) {
+  return await repo.asignarAlumnoACurso(id_alumno, anio, division, anio_lectivo);
+}
+
+async function asignarAlumnosMasivamente(alumnos, anio, division, anio_lectivo) {
+  return await repo.asignarAlumnosMasivamente(alumnos, anio, division, anio_lectivo);
+}
+async function obtenerInfoCurso(anio, division, anioLectivo) {
+  return await repo.obtenerInfoCurso(anio, division, anioLectivo);
+}
 module.exports = {
-    obtenerCursos, crearCurso, alumnosPorCurso
+    obtenerCursos, crearCurso, alumnosPorCurso, obtenerAlumnosSinCurso, asignarAlumnoACurso, asignarAlumnosMasivamente, obtenerInfoCurso
 }

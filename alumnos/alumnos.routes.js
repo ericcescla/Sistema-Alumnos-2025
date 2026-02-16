@@ -10,6 +10,8 @@ router.post('/', controller.crearAlumnoyTutor);
 
 router.put('/:id', controller.actualizarAlumnoyTutor);
 
+router.get('/buscarPorDni', controller.buscarAlumnoPorDniQuery);
+
 // TODO route para eliminar un alumno y su tutor
 
 module.exports = router;

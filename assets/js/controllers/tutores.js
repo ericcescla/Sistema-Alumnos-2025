@@ -37,6 +37,10 @@ document.getElementById('btnBuscartutor').addEventListener('click', async () => 
   const dni = dniInput.value.trim();
   const resultadosDiv = document.getElementById('resultadosTutor');
 
+  // Obtener el usuario logueado
+  const usuarioStr = localStorage.getItem('usuario');
+  const usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
+
   // Limpiar resultados previos
   resultadosDiv.innerHTML = "";
 
@@ -88,6 +92,20 @@ document.getElementById('btnBuscartutor').addEventListener('click', async () => 
     }
 
     mostrarModal(document.getElementById('buscadorTutor'));
+        //logs
+    if (usuario) {
+      await fetch('http://localhost:3000/api/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id_operacion: 14,
+          id_usuario: usuario.id_usuario,
+          ip: null,
+          detalle: `El usuario ${usuario.nombre} consultó tutor con DNI: ${dni}`,
+          usuario_afectado: null
+        })
+      });
+    }
 
     // Vaciar input de DNI después de buscar
     dniInput.value = "";

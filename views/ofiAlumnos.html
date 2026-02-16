@@ -217,27 +217,28 @@
         <fieldset>
           <legend>Datos del Tutor</legend>
 
+          <!-- Datos del Tutor -->
           <label for="tutor_nombre">Nombre</label>
-          <input type="text" id="tutor_nombre" name="tutor_nombre" placeholder="Nombre del Tutor" maxlength="15" required>
+          <input type="text" id="tutor_nombre" name="tutor_nombre" maxlength="15" required>
 
           <label for="tutor_apellido">Apellido</label>
-          <input type="text" id="tutor_apellido" name="tutor_apellido" placeholder="Apellido del Tutor" maxlength="15" required>
+          <input type="text" id="tutor_apellido" name="tutor_apellido" maxlength="15" required>
 
           <label for="tutor_dni">DNI</label>
-          <input type="text" id="tutor_dni" name="tutor_dni"  placeholder="DNI del Tutor" maxlength="8" required>
-
+          <input type="text" id="tutor_dni" name="tutor_dni" maxlength="8" required>
 
           <label for="tutor_cuil">CUIL</label>
-          <input type="text" id="tutor_cuil" name="tutor_cuil" placeholder="CUIL del Tutor" maxlength="11" required>
+          <input type="text" id="tutor_cuil" name="tutor_cuil" maxlength="11" required>
 
-          <label for="tutor_telefono">Teléfono</label>
-          <input type="tel" id="tutor_telefono" name="tutor_telefono" placeholder="Teléfono del Tutor" maxlength="15">
+          <label for="tutor_telefono">Teléfono *</label>
+          <input type="tel" id="tutor_telefono" name="tutor_telefono" placeholder="Teléfono del Tutor" maxlength="15" required>
 
           <label for="tutor_email">Email</label>
-          <input type="email" id="tutor_email" name="tutor_email" placeholder="Email del Tutor" maxlength="25">
+          <input type="email" id="tutor_email" name="tutor_email" maxlength="30" required>
 
           <label for="tutor_direccion">Dirección</label>
-          <input type="text" id="tutor_direccion" name="tutor_direccion" placeholder="Dirección del Tutor" maxlength="25">
+          <input type="text" id="tutor_direccion" name="tutor_direccion" maxlength="50" required>
+
         </fieldset>
 
         <button type="submit">Agregar Alumno</button>

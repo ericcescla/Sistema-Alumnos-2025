@@ -90,10 +90,19 @@ async function ultimosLogs() {
   return result;
 }
 
+/* NUEVA FUNCIÓN: devuelve las operaciones disponibles en la tabla operaciones */
+async function obtenerOperaciones() {
+  const result = await db.query(`
+    SELECT id_operacion, descripcion
+    FROM operaciones
+    ORDER BY id_operacion
+  `);
+  return result.rows;
+}
+
 module.exports = {
   registrarLog,
   ultimosLogs,
-  obternerLogs
+  obternerLogs,
+  obtenerOperaciones // <-- agregado
 };
-
-

@@ -15,8 +15,15 @@ async function ultimosLogs() {
     return result;
 }
 
+/* NUEVA FUNCIÓN: devuelve las operaciones (id + descripcion) */
+async function obtenerOperaciones() {
+    const result = await repo.obtenerOperaciones();
+    return result; // devuelve array de objetos { id_operacion, descripcion }
+}
 
 module.exports = { 
     registrarLog, 
     ultimosLogs,
-     obtenerLogs }
+    obtenerLogs,
+    obtenerOperaciones // <-- agregado
+}

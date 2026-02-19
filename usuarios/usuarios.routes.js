@@ -7,18 +7,6 @@ router.get('/',
   controller.listarUsuarios
 );
 
-router.post('/login',
-  controller.login
-);
-
-router.post(
-  '/registrar',
-  milddleware.validarDatos,
-  milddleware.passwordValidator,
-  milddleware.validarErrores,
-  controller.registrar
-);
-
 router.get(
   '/grupos',
   controller.grupos
@@ -54,15 +42,5 @@ router.put('/:id/deshabilitar',
   controller.deshabilitarUsuario
 );
 
-router.put(
-  '/:id/cambiar-password',
-  milddleware.validarNuevaContraseña,
-  milddleware.validarErrores,
-  controller.cambiarPassword
-);
-
-router.get('/logout', async (req,res) =>{
-   res.sendStatus(200);
-});
 
 module.exports = router;

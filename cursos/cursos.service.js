@@ -20,7 +20,6 @@ async function crearCurso(anio, division, id_plan, anio_lectivo) {
     return "Curso insertado correctamente";
 }
 
-
 async function alumnosPorCurso(anioLectivo, anio, division) {
     const result = await repo.alumnosPorCurso(anioLectivo, anio, division);
     if (result.rows.length === 0) {

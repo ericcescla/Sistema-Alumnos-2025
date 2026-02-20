@@ -21,6 +21,15 @@ function authenticateToken(req, res, next) {
   }
 }
 
+ estaAutorizado = (...rol) => {
+  return (req, res, next) => {
+    if (!role.includes(req.user.rol)) {
+      return res.status(403).json({ error: 'Acceso denegado' });
+    }
+    next();
+  }
+}
 module.exports = {
   authenticateToken,
+  estaAutorizado,
 };

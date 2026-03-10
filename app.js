@@ -34,28 +34,28 @@ app.use(function(req, res, next) {
 // Archivos estáticos
 app.use('/assets', express.static('assets'));
 app.use('/views', express.static('views'));
+app.use('/services', express.static('services'));
 
 // Ruta para servir index.html
 app.get('/', (req, res) => {res.sendFile(path.join(__dirname, 'index.html'))});
+app.get('/login.html', (req, res) => {res.sendFile(path.join(__dirname, 'views', 'login.html'))});
 
 app.use('/api/auth', authRouter);
 
 
 // Rutas de la app
-app.use('/api/tutores', authmilddleware.estaAutorizado("Administrador",
-"Auditor",
-"Invitado",
-"Operador",
-"Soporte",
-"Supervisor",
-"Usuario")
-, tutoresRouter);
-app.use('/api/planes', authmilddleware.estaAutorizado('Supervisor'), planesRouter);
-app.use('/api/cursos', authmilddleware.estaAutorizado('Supervisor'), cursosRouter);
-app.use('/api/materias', authmilddleware.estaAutorizado('Supervisor'), materiasRouter);
-app.use('/api/alumnos', authmilddleware.estaAutorizado('Supervisor'), alumnosRouter);
-app.use('/api/usuarios', authmilddleware.estaAutorizado('Supervisor'), usuariosRouter);
-app.use('/api/logs', authmilddleware.estaAutorizado('Supervisor'), logsRouter);
-
+app.use('/api/tutores',  tutoresRouter);
+app.use('/api/planes',  planesRouter);
+app.use('/api/cursos',  cursosRouter);
+app.use('/api/materias',  materiasRouter);
+app.use('/api/alumnos',  alumnosRouter);
+app.use('/api/usuarios',  usuariosRouter);
+app.use('/api/logs',  logsRouter);
+// authmilddleware.estaAutorizado('Supervisor'),
+// authmilddleware.estaAutorizado('Supervisor'),
+// authmilddleware.estaAutorizado('Supervisor'),
+// authmilddleware.estaAutorizado('Supervisor'),
+// authmilddleware.estaAutorizado('Supervisor'),
+// authmilddleware.estaAutorizado('Supervisor'),
 
 module.exports = {app};

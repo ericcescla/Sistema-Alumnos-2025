@@ -1,5 +1,16 @@
 const db = require("../dbUsers.js");
 
+ async function obtenerUsuario(id) {
+  const result = await db.query(
+    `SELECT u.id_usuario, u.nombre, u.dni, u.id_rol, r.nombre AS rol, u.id_grupo, g.nombre AS grupo, u.deshabilitado, u.bloqueado, u.intentos
+      FROM usuarios u 
+      LEFT JOIN roles r ON u.id_rol = r.id_rol
+      LEFT JOIN grupos g ON u.id_grupo = g.id_grupo
+      WHERE u.id_usuario = $1`,
+    [id]
+);
+  return result.rows[0];
+}
 // Función para bloquear un usuario después de 3 intentos fallidos
 
 function bloquearUsuario(id, intentos) {
@@ -127,4 +138,5 @@ module.exports = {
   cambiarRol,
   deshabilitarUsuario,
   desbloquearUsuario,
+  obtenerUsuario
 };

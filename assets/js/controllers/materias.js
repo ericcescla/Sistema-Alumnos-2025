@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tbody = document.querySelector("#tabla-materias tbody");
 
-    fetch("/materias")
+    fetchWithAuth("/materias")
         .then(res => res.json())
         .then(data => {
             data.forEach(materia => {

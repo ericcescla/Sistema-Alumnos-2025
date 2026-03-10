@@ -16,7 +16,7 @@ async function registrarAccesoApartado(nombreApartado) {
         }
     }
     if (id_usuario && nombre_usuario) {
-        await fetch('http://localhost:3000/api/logs', {
+        await fetchWithAuth('/logs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

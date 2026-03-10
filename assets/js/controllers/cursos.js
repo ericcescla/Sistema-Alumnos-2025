@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     const tbody = document.querySelector("#tabla-cursos tbody");
-    fetch("/cursos")
+    fetchWithAuth("/cursos")
     .then(res => res.json())
     .then(data => {
         data.forEach(curso => {
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-  fetch('/planes')
+  fetchWithAuth('/planes')
     .then(res => res.json())
     .then(data => {
       const select = document.getElementById('selectPlanes');
@@ -70,7 +70,7 @@ document.getElementById("formCurso").addEventListener("submit", async function(e
   const data = Object.fromEntries(formData.entries());
 
   try {
-    const response = await fetch("/cursos", {
+    const response = await fetchWithAuth("/cursos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
@@ -103,7 +103,7 @@ btnBuscarCurso.addEventListener("click", async () => {
   }
 
   try {
-    const res = await fetch(`/cursos/alumnosCurso?anioLectivo=${encodeURIComponent(anioLectivo)}&anio=${encodeURIComponent(anio)}&division=${encodeURIComponent(division)}`);
+    const res = await fetchWithAuth(`/cursos/alumnosCurso?anioLectivo=${encodeURIComponent(anioLectivo)}&anio=${encodeURIComponent(anio)}&division=${encodeURIComponent(division)}`);
     const alumnos = await res.json();
 
     const contenidoResultados = document.getElementById("contenidoResultados");

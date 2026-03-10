@@ -1,6 +1,11 @@
 const repo = require('./usuarios.repository');
 const { registrarLog } = require('../log/logs.repository');
 
+ async function obtenerUsuario(id) {
+  const result = await repo.obtenerUsuario(id);
+  return result;
+}
+
 async function roles() {
   const result = await repo.obtenerRoles();
   return result;
@@ -100,5 +105,6 @@ module.exports = {
   cambiarGrupo,
   cambiarRol,
   // cambiarPassword
+  obtenerUsuario
 
 };

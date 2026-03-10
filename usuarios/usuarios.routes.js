@@ -4,6 +4,7 @@ const controller = require('./usuarios.controller');
 const milddleware = require('./usuarios.milddleware');
 
 router.get('/', controller.listarUsuarios);
+router.get('/:id', controller.obtenerUsuario);
 
 router.get('/grupos', controller.grupos);
 router.get('/roles', controller.roles);

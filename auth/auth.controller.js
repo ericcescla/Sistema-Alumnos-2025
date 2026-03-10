@@ -3,12 +3,11 @@ const service = require("./auth.service");
 async function login(req, res) {
   try {
     const { usuario, password } = req.body;
-    console.log(usuario, password, req.ip);
     
     const result = await service.login(usuario, password, req.ip);
     res.json(result);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -25,7 +24,6 @@ async function registrar(req, res) {
 async function cambiarPassword(req, res) {
   try {
     const { nuevaPassword } = req.body;   
-    console.log('contro', nuevaPassword, req.params.id );
 
     await service.cambiarPassword(nuevaPassword, req.params.id);
     res.sendStatus(200);

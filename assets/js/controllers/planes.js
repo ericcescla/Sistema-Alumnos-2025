@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tbody = document.querySelector("#tabla-planes tbody");
 
-    fetch("/planes")
+    fetchWithAuth("/planes")
         .then(res => res.json())
         .then(data => {
             data.forEach(plan => {

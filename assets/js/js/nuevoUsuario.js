@@ -48,7 +48,7 @@ document.getElementById('formAgregarUsuario').addEventListener('submit', async f
     };
 
     try {
-        const res = await fetch('http://localhost:3000/api/usuarios', {
+        const res = await fetchWithAuth('/usuarios', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
@@ -102,7 +102,7 @@ function cargarRolesYGrupos() {
     selectRol.innerHTML = "<option disabled selected>Cargando...</option>";
     selectGrupo.innerHTML = "<option disabled selected>Cargando...</option>";
 
-    fetch('http://localhost:3000/api/usuarios/roles')
+    fetchWithAuth('/usuarios/roles')
     .then(res => res.json())
     .then(roles => {
         selectRol.innerHTML = "";
@@ -111,7 +111,7 @@ function cargarRolesYGrupos() {
         });
     });
 
-    fetch('http://localhost:3000/api/usuarios/grupos')
+    fetchWithAuth('/usuarios/grupos')
     .then(res => res.json())
     .then(grupos => {
         selectGrupo.innerHTML = "";

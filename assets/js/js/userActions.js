@@ -33,7 +33,7 @@ function cerrarModalAccionUsuario() {
 // Ejecutar la acción de habilitar, deshabilitar o desbloquear, registrar la acción en el registro de auditoría
 function deshabilitarUsuario() {
     if(document.getElementById("accionDeshabilitar").disabled) return;
-    fetch(`http://localhost:3000/api/usuarios/${usuarioAccionId}/deshabilitar`, {method: "PUT"})
+    fetchWithAuth(`/usuarios/${usuarioAccionId}/deshabilitar`, {method: "PUT"})
         .then(res => {
             if(res.ok){
                 alert("Usuario deshabilitado correctamente");
@@ -53,7 +53,7 @@ function deshabilitarUsuario() {
 
 function habilitarUsuario() {
     if(document.getElementById("accionHabilitar").disabled) return;
-    fetch(`http://localhost:3000/api/usuarios/${usuarioAccionId}/habilitar`, {method: "PUT"})
+    fetchWithAuth(`/usuarios/${usuarioAccionId}/habilitar`, {method: "PUT"})
         .then(res => {
             if(res.ok){
                 alert("Usuario habilitado correctamente");
@@ -73,7 +73,7 @@ function habilitarUsuario() {
 
 function desbloquearUsuario() {
     if(document.getElementById("accionDesbloquear").disabled) return;
-    fetch(`http://localhost:3000/api/usuarios/${usuarioAccionId}/desbloquear`, {method: "PUT"})
+    fetchWithAuth(`/usuarios/${usuarioAccionId}/desbloquear`, {method: "PUT"})
         .then(res => {
             if(res.ok){
                 alert("Usuario desbloqueado correctamente");

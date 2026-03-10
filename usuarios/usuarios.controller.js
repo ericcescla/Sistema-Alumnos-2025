@@ -1,5 +1,30 @@
 const service = require("./usuarios.service");
 
+
+async function listarUsuarios(req, res) {
+  try {
+    const result = await service.listarUsuarios(req.query);
+    res.json(result);
+  } catch (err) {
+    console.error('Error en listarUsuarios:', err);
+    res.status(err.status || 500).json({
+      error: err.message || 'Error interno del servidor'
+    });
+  }
+}
+
+ async function obtenerUsuario(req, res){
+  try {
+    const result = await service.obtenerUsuario(req.params.id);
+    res.json(result);
+  } catch (error) {
+    console.error('Error en obtenerUsuario:', error);
+    res.status(500).json({
+      error: error.message || 'Error interno del servidor'
+    });
+  }
+}
+
 // Controlador para obtener los grupos de usuarios
 
 async function grupos(req, res) {
@@ -49,17 +74,6 @@ async function cargarUsuariosPorRol(req, res) {
   }
 }
 
-async function listarUsuarios(req, res) {
-  try {
-    const result = await service.listarUsuarios(req.query);
-    res.json(result);
-  } catch (err) {
-    console.error('Error en listarUsuarios:', err);
-    res.status(err.status || 500).json({
-      error: err.message || 'Error interno del servidor'
-    });
-  }
-}
 
 //funciones para estado de usuario
 
@@ -114,4 +128,5 @@ module.exports = {
   desbloquearUsuario,
   cambiarGrupo,
   cambiarRol,
+  obtenerUsuario
 };

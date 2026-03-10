@@ -4,7 +4,7 @@
 // Obtener la lista de usuarios del backend y rellenar la tabla principal
 // Aplicar paginación, buscar y mostrar el estado de cada usuario
 async function cargarUsuarios() {
-    const res = await fetch(`http://localhost:3000/api/usuarios?search=${encodeURIComponent(search)}&page=${pagina}&limit=${limite}`);
+    const res = await fetchWithAuth(`/usuarios?search=${encodeURIComponent(search)}&page=${pagina}&limit=${limite}`);
     const data = await res.json();
     const tbody = document.getElementById('usuariosBody');
     tbody.innerHTML = "";
@@ -63,7 +63,7 @@ async function cargarUsuarios() {
 // ========== USUARIOS POR ROL ==========
 // Obtener el número de usuarios por rol y mostrarlo en insignias
 async function cargarUsuariosPorRol() {
-    const res = await fetch('http://localhost:3000/api/usuarios/usuarios-por-rol');
+    const res = await fetchWithAuth('/usuarios/usuarios-por-rol');
     const data = await res.json();
     const contenedor = document.getElementById('usuariosPorRolContainer');
     contenedor.innerHTML = '';

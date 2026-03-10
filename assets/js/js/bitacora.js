@@ -78,7 +78,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (fechaFin) query += `&fechaFin=${fechaFin}`;
 
         try {
-            const res = await fetch(`http://localhost:3000/api/logs${query}`);
+            const res = await fetchWithAuth(`/logs${query}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            });
             const data = await res.json();
             tablaBitacoraBody.innerHTML = "";
             if (data.logs && data.logs.length > 0) {

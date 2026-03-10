@@ -21,14 +21,16 @@ function generarToken(user) {
 usuarioDelEstado = async (user) => {
   if (user.deshabilitado) {
     await registrarLog(2, user.id_usuario, 'Intento de login usuario deshabilitado');
-    throw new Error('Usuario deshabilitado');
+        throw new Error("Usuario desabilitado");
+
   }
 
   if (user.bloqueado) {
     await registrarLog(3, user.id_usuario, 'Intento de login de usuario bloqueado');
-    throw new Error('Usuario bloqueado');
+    throw new Error("Usuario bloqueado");
+    
   }
-  return console.log('usuario activo');
+
 }
 
 async function login(usuario, password) {
@@ -36,10 +38,10 @@ async function login(usuario, password) {
 
   const result = await repo.encontrarPorUsuariODni(usuario);
   const user = result[0];
-  // console.log(user);
 
   if (!user) {
-    throw new Error('Usuario no encontrado');
+        throw new Error("Usuario inexistente");
+
   }
 
   await usuarioDelEstado(user);
@@ -48,7 +50,7 @@ async function login(usuario, password) {
   const esPasswordValida = await bcrypt.compare(password, user.pass);
   
   if (!esPasswordValida ) {
-    console.log(' incorrecta la contraseña');
+    // console.log(' incorrecta la contraseña');
 
     const sessionIntentos = user.intentos + 1;
 
@@ -56,23 +58,27 @@ async function login(usuario, password) {
 
       await bloquearUsuario(user.id_usuario, sessionIntentos);
       await registrarLog(5, user.id_usuario, 'Usuario bloqueado por intentos fallidos');
-      throw new Error('Usuario bloqueado');
+          throw new Error("Usuario bloqueado");
 
     }
 
     await repo.incrementarIntentos(user.id_usuario, sessionIntentos);
     await registrarLog(4, user.id_usuario, 'contraseña incorrecta');
 
-    throw new Error('Contraseña incorrecta. Intentos: ' + sessionIntentos);
+    // return { success: false, message:``} 
+    throw new Error(`contraseña incorrecta intentos: ${sessionIntentos}`);
 
   }
 
   await repo.resetIntentos(user.id_usuario);
   await registrarLog(1, user.id_usuario, 'Login exitoso!!');
 
+
   const passHist = await repo.obtenerPassHist(user.id_usuario);
 
   const token = generarToken(user);
+  // console.log('Token generado:', token, user);
+  
   return {
     success: true,
     token,
@@ -83,8 +89,6 @@ async function login(usuario, password) {
     },
   };
 }
-
-
 
 async function registrar(user) {
 
@@ -119,6 +123,8 @@ async function cambiarPassword(nuevaPassword, id) {
   await repo.cambiarPassword(nuevaPassword, id);
   await repo.insertarPassHisto(id, nuevaPassword);
 }
+
+
 
 module.exports = {
   login,

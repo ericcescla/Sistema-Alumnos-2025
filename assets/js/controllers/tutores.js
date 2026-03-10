@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tbody = document.querySelector("#tabla-tutores tbody");
     const contenedorAcciones = document.getElementById("acciones-tutores");
 
-    fetch("/tutores")
+    fetchWithAuth("/tutores")
         .then(res => res.json())
         .then(data => {
             data.forEach(tutor => {
@@ -43,7 +43,7 @@ document.getElementById('btnBuscartutor').addEventListener('click', async () => 
   if (!dni) return alert('Ingrese un DNI válido');
 
   try {
-    const res = await fetch(`/tutores/buscar?dni=${dni}`);
+    const res = await fetchWithAuth(`/tutores/buscar?dni=${dni}`);
     const datos = await res.json();
 
     if (datos.length === 0) {

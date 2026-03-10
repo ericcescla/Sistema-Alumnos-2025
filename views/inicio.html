@@ -128,39 +128,91 @@
         </div>
     </div>
    
+    <script src="/services/api.js"></script>
     <script>
-    function cargarActividadReciente() {
-        fetch('http://localhost:3000/api/logs/ultimos')
-            .then(res => res.json())
-            .then(logs => {
-                const actividad = document.getElementById('actividad-reciente');
-                if (!actividad) return;
-                if (!logs.length) {
-                    actividad.innerHTML = '<p class="text-gray-500">No hay actividad reciente.</p>';
-                    return;
-                }
-                actividad.innerHTML = logs.map(log => `
-                    <div class="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50">
-                        <div class="bg-blue-100 p-2 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                class="lucide lucide-calendar h-4 w-4 text-blue-600">
-                                <path d="M8 2v4"></path>
-                                <path d="M16 2v4"></path>
-                                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-                                <path d="M3 10h18"></path>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900">${log.detalle}</p>
-                            <p class="text-sm text-gray-600">${log.usuario} (${log.accion})</p>
-                        </div>
-                        <span class="text-xs text-gray-400">${tiempoAgo(log.fecha)}</span>
-                    </div>
-                `).join('');
-            });
+  async function cargarActividadReciente() {
+    const contenedor = document.getElementById('actividad-reciente');
+    if (!contenedor) return;
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        contenedor.innerHTML = `
+            <p class="text-sm text-red-500">
+                No autenticado. Inicie sesión nuevamente.
+            </p>
+        `;
+        return;
     }
+
+    try {
+        const response = await fetchWithAuth('/logs/ultimos', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                contenedor.innerHTML = `
+                    <p class="text-sm text-red-500">
+                        Sesión expirada.
+                    </p>
+                `;
+                return;
+            }
+            throw new Error('Error al obtener logs');
+        }
+
+        const logs = await response.json();
+
+        if (!logs.length) {
+            contenedor.innerHTML = `
+                <p class="text-sm text-gray-500">
+                    No hay actividad reciente.
+                </p>
+            `;
+            return;
+        }
+
+        contenedor.innerHTML = logs.map(log => `
+            <div class="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50">
+                <div class="bg-blue-100 p-2 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-calendar h-4 w-4 text-blue-600">
+                        <path d="M8 2v4"></path>
+                        <path d="M16 2v4"></path>
+                        <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                        <path d="M3 10h18"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">
+                        ${log.detalle || 'Actividad registrada'}
+                    </p>
+                    <p class="text-sm text-gray-600">
+                        ${log.usuario || 'Sistema'} (${log.accion || 'N/A'})
+                    </p>
+                </div>
+                <span class="text-xs text-gray-400">
+                    ${tiempoAgo(log.fecha)}
+                </span>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error(error);
+        contenedor.innerHTML = `
+            <p class="text-sm text-red-500">
+                Error al cargar la actividad.
+            </p>
+        `;
+    }
+}
     function tiempoAgo(fecha) {
         const ahora = new Date();
         const f = new Date(fecha);

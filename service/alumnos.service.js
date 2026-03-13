@@ -1,4 +1,5 @@
-const repo = require("./alumnos.repository");
+const repo = require("../repositories/alumnos.repository.js");
+const pool = require('../dbDatos.js');
 
 async function obtenerAlumnos(anio, division) {
   const result = await repo.obtenerAlumnosAnioDivision(anio, division);
@@ -17,6 +18,8 @@ async function buscarAlumnoPorDni(dni) {
 //falta probar si funcina todo bien 
 async function crearAlumnoyTutor(Alumno, Tutor) {
   const client = await pool.connect();
+  
+  
   try {
     await client.query("BEGIN");
     const id_alumno = await repo.crearAlumno(client, Alumno);
@@ -39,12 +42,13 @@ async function crearAlumnoyTutor(Alumno, Tutor) {
   }
 }
 
-async function actualizarAlumnoyTutor(Alumno, Tutor) {
+async function actualizarAlumnoyTutor(data) {
   const client = await pool.connect();
   try {
+    console.log('adsfa'+data);
     await client.query("BEGIN");
-    await repo.actualizarAlumno(client, Alumno);
-    await repo.actualizarTutor(client, Tutor);
+    await repo.actualizarAlumno(client,data);
+    await repo.actualizarTutor(client, data);
     await client.query("COMMIT");
     return { message: "Alumno y tutor actualizados con éxito" };
   } catch (error) {
@@ -60,5 +64,6 @@ async function actualizarAlumnoyTutor(Alumno, Tutor) {
 module.exports = {
   obtenerAlumnos,
   buscarAlumnoPorDni,
-  crearAlumnoyTutor
+  crearAlumnoyTutor, 
+  actualizarAlumnoyTutor
 };

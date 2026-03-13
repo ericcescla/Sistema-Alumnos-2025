@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('./usuarios.controller');
-const milddleware = require('./usuarios.milddleware');
+const controller = require('../controller/usuarios.controller.js');
+const milddleware = require('../middleware/auth.middleware.js');
 
 router.get('/', controller.listarUsuarios);
-router.get('/:id', controller.obtenerUsuario);
+router.get('/me', controller.obtenerUsuario);
 
 router.get('/grupos', controller.grupos);
 router.get('/roles', controller.roles);

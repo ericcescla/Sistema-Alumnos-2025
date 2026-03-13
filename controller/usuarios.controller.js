@@ -1,4 +1,4 @@
-const service = require("./usuarios.service");
+const service = require("../service/usuarios.service.js");
 
 
 async function listarUsuarios(req, res) {
@@ -15,7 +15,7 @@ async function listarUsuarios(req, res) {
 
  async function obtenerUsuario(req, res){
   try {
-    const result = await service.obtenerUsuario(req.params.id);
+    const result = await service.obtenerUsuario(req.user.id_usuario);
     res.json(result);
   } catch (error) {
     console.error('Error en obtenerUsuario:', error);

@@ -15,9 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
              <td class="px-4 py-2 text-sm text-gray-700">${curso.anio_lectivo}</td>
 
 
-                    <td>
-                        <button class="ver-mas" onclick="mostrarModal()">Ver Mas</button>
-
+                    <td class="px-4 py-2 text-center">
+                        <button class="ver-mas" onclick="abrirDetalleCurso(${curso.id_curso})">Ver más</button>
                     </td>
                 `
 
@@ -152,5 +151,134 @@ btnBuscarCurso.addEventListener("click", async () => {
     console.error("Error en búsqueda:", err);
     document.getElementById("contenidoResultados").innerHTML = "<p>Error al buscar alumnos.</p>";
     mostrarModal(document.getElementById("modalResultados"));
+  }
+});
+
+let materiasCache = [];
+let ordenMateriasActual = "nombre";
+
+function abrirDetalleCurso(idCurso) {
+  const modal = document.getElementById("modalDetalleCurso");
+  if (!modal) return;
+  mostrarModal(modal);
+  cargarCurso(idCurso);
+}
+
+async function cargarCurso(idCurso) {
+  const cursoSkeleton = document.getElementById("cursoSkeleton");
+  const cursoContenido = document.getElementById("cursoContenido");
+  const cursoError = document.getElementById("cursoError");
+
+  if (cursoError) cursoError.classList.add("hidden");
+  if (cursoContenido) cursoContenido.classList.add("hidden");
+  if (cursoSkeleton) cursoSkeleton.classList.remove("hidden");
+
+  try {
+    const res = await fetchWithAuth(`/cursos/${idCurso}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    if (!res.ok) {
+      throw new Error("No se pudo cargar el curso");
+    }
+
+    const data = await res.json();
+    const curso = data.curso;
+    const materias = Array.isArray(data.materias) ? data.materias : [];
+
+    renderCurso(curso);
+    materiasCache = materias;
+    renderMaterias(materiasCache);
+
+    if (cursoContenido) cursoContenido.classList.remove("hidden");
+  } catch (error) {
+    console.error(error);
+    if (cursoError) cursoError.classList.remove("hidden");
+  } finally {
+    if (cursoSkeleton) cursoSkeleton.classList.add("hidden");
+  }
+}
+
+function renderCurso(curso) {
+  if (!curso) return;
+  const titulo = document.getElementById("cursoTitulo");
+  const anioLectivo = document.getElementById("anioLectivo");
+  const nombrePlan = document.getElementById("nombrePlan");
+  const descripcionPlan = document.getElementById("descripcionPlan");
+
+  if (titulo) {
+    titulo.textContent = `${curso.anio} Año - División ${curso.division}`;
+  }
+  if (anioLectivo) {
+    anioLectivo.textContent = `Año lectivo ${curso.anio_lectivo}`;
+  }
+  if (nombrePlan) {
+    nombrePlan.textContent = curso.nombre_plan || "Sin plan asignado";
+  }
+  if (descripcionPlan) {
+    descripcionPlan.textContent = curso.descripcion || "Sin descripción disponible";
+  }
+}
+
+function renderMaterias(materias) {
+  const contenedor = document.getElementById("listaMaterias");
+  const emptyState = document.getElementById("materiasEmpty");
+
+  if (!contenedor) return;
+
+  contenedor.innerHTML = "";
+
+  if (!materias || materias.length === 0) {
+    if (emptyState) emptyState.classList.remove("hidden");
+    return;
+  }
+
+  if (emptyState) emptyState.classList.add("hidden");
+
+  const materiasOrdenadas = [...materias];
+  if (ordenMateriasActual === "profesor") {
+    materiasOrdenadas.sort((a, b) => (a.profesor || "").localeCompare(b.profesor || ""));
+  } else {
+    materiasOrdenadas.sort((a, b) => (a.nombre_materia || "").localeCompare(b.nombre_materia || ""));
+  }
+
+  const cards = materiasOrdenadas.map(materia => {
+    const profesor = materia.profesor ? materia.profesor : "Sin asignar";
+    const rol = materia.rol_profesor ? materia.rol_profesor : "Sin rol";
+    return `
+      <div class="bg-white border rounded-lg p-4 hover:shadow transition">
+        <h3 class="font-semibold text-lg">${materia.nombre_materia || "Materia sin nombre"}</h3>
+        <div class="mt-2 text-sm text-gray-600">
+          <p><span class="font-medium">Profesor:</span> ${profesor}</p>
+          <p class="flex items-center gap-2"><span class="font-medium">Rol:</span> ${renderRolBadge(rol)}</p>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  contenedor.innerHTML = cards;
+}
+
+function renderRolBadge(rol) {
+  const rolLower = (rol || "").toLowerCase();
+  let classes = "bg-gray-100 text-gray-700";
+
+  if (rolLower.includes("titular")) {
+    classes = "bg-blue-100 text-blue-700";
+  } else if (rolLower.includes("suplente")) {
+    classes = "bg-yellow-100 text-yellow-800";
+  }
+
+  return `<span class="${classes} text-xs px-2 py-1 rounded">${rol}</span>`;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const ordenMaterias = document.getElementById("ordenMaterias");
+  if (ordenMaterias) {
+    ordenMaterias.addEventListener("change", (event) => {
+      ordenMateriasActual = event.target.value;
+      renderMaterias(materiasCache);
+    });
   }
 });

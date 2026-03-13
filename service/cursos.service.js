@@ -1,8 +1,18 @@
-const repo = require('./cursos.repository');
+const repo = require('../repositories/cursos.repository.js');
+
+cursoIndividual =  async (id) => {
+    const curso = await repo.cursoIndividual(id);
+    if (!curso) {
+        throw new Error('Curso no encontrado');
+    }
+    const materias = await repo.materiasPorCurso(id, curso.id_plan);
+    return { curso, materias };
+}
 
 async function obtenerCursos() {
-    const result = await repo.obternerCursos();
-    return result.rows;
+    
+    const { rows } = await repo.obternerCursos();
+    return rows ;
 }
 
 async function crearCurso(anio, division, id_plan, anio_lectivo) {
@@ -26,7 +36,7 @@ async function alumnosPorCurso(anioLectivo, anio, division) {
         throw new Error("No hubo concidencia con lo datos");
         
     }
-    return result.rows;
+    return result;
 }
 
 
@@ -44,5 +54,5 @@ asignarCurso = async (idAlumno, idCurso) => {
 }
 
 module.exports = {
-    obtenerCursos, crearCurso, alumnosPorCurso, asignarCurso
+    obtenerCursos, crearCurso, alumnosPorCurso, asignarCurso, cursoIndividual
 }

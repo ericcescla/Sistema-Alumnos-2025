@@ -1,5 +1,5 @@
-const repo = require('./usuarios.repository');
-const { registrarLog } = require('../log/logs.repository');
+const repo = require('../repositories/usuarios.repository.js');
+const { registrarLog } = require('../repositories/logs.repository.js');
 
  async function obtenerUsuario(id) {
   const result = await repo.obtenerUsuario(id);

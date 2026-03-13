@@ -1,4 +1,4 @@
-const service = require('./logs.services');
+const service = require('../service/logs.service.js');
 
 async function obternerLogs(req, res) {
     try {

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('./logs.controller');
-const db = require('../dbUsers')
+const controller = require('../controller/logs.controller.js');
+    
 
 router.get('/', controller.obternerLogs);
 router.get('/ultimos', controller.ultimosLogs);

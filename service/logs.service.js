@@ -1,5 +1,5 @@
 const { json } = require('express');
-const repo = require('./logs.repository');
+const repo = require('../repositories/logs.repository');
 
 async function obtenerLogs(search, fechaInicio, fechaFin, limit, offset) {
     const result = await repo.obternerLogs(search, fechaInicio, fechaFin, limit, offset);

@@ -2,7 +2,7 @@ require('dotenv').config();
 const logsRouter = require('./log/logs.routes');
 const usuariosRouter = require('./usuarios/usuarios.routes');
 const alumnosRouter = require('./alumnos/alumnos.routes');
-const materiasRouter = require('./routes/materias');
+const materiasRouter = require('./materias/materias.route');
 const cursosRouter = require('./cursos/cursos.routes');
 const planesRouter = require('./routes/planes');
 const tutoresRouter = require('./tutor/tutor.route');

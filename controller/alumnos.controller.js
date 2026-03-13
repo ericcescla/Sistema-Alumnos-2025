@@ -1,4 +1,4 @@
-const services = require('./alumnos.service');
+const services = require('../service/alumnos.service.js');
 
 async function listarAlumnos(req, res) {
   const { anio, division } = req.query; 
@@ -24,6 +24,7 @@ async function buscarAlumno(req, res) {
 
 async function crearAlumnoyTutor(req, res) {
     try {
+        
         const Alumno =  {
             legajo,
             nombre, 
@@ -45,6 +46,8 @@ async function crearAlumnoyTutor(req, res) {
             email:tutor_email,
             direccion:tutor_direccion
         } = req.body;
+tutor_telefono
+        
         
         const message = await services.crearAlumnoyTutor(Alumno, Tutor);
         res.status(201).json(message);
@@ -58,31 +61,10 @@ async function crearAlumnoyTutor(req, res) {
 
 async function actualizarAlumnoyTutor(req, res) {
     try {
-        const Alumno =  {
-            id_alumno: req.params.id,
-            legajo,
-            nombre, 
-            apellido,
-            dni,
-            cuil,
-            email,
-            direccion,
-            link_docu,
-            hermanos,
-            fecha_nacimiento,
-        } = req.body;
-        const Tutor = {
-            id_tutor,
-            nombre:tutor_nombre, 
-            apellido:tutor_apellido,
-            dni:tutor_dni,
-            cuil:tutor_cuil,
-            telefono:tutor_telefono,
-            email:tutor_email,
-            direccion:tutor_direccion
-        } = req.body;
-        
-        const message = await services.actualizarAlumnoyTutor(Alumno, Tutor);
+        console.log(req.body);
+
+       const data = req.body;
+        const message = await services.actualizarAlumnoyTutor(data);
         res.json(message);
         } catch (error) {
         console.error(error);

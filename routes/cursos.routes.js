@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('./cursos.controller');
+const controller = require('../controller/cursos.controller.js');
 
 router.get('/', controller.obtenerCursos);
-router.post('/', controller.crearCursos);
 router.get('/alumnosCurso', controller.alumnosPorCursos);
+router.get('/:id', controller.cursoIndividual);
+router.post('/', controller.crearCursos);
 router.post('/asignar-curso', controller.asignarCurso);
 
 module.exports = router;

@@ -1,6 +1,6 @@
-const repo = require('./auth.repository');
-const { bloquearUsuario } = require('../usuarios/usuarios.repository');
-const { registrarLog } = require('../log/logs.repository');
+const repo = require('../repositories/auth.repository.js');
+const { bloquearUsuario } = require('../repositories/usuarios.repository.js');
+const { registrarLog } = require('../repositories/logs.repository.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 

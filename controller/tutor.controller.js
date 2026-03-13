@@ -1,5 +1,4 @@
-const { query } = require('express-validator');
-const service = require('./tutor.service');
+const service = require('../service/tutor.service.js');
 
 async function obtenerTutores(req, res) {
     try {

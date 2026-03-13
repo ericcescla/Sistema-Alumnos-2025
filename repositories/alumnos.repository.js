@@ -95,22 +95,24 @@ async function vincularAlumnoTutor(client, id_alumno, id_tutor) {
   );
 }
 
-async function actualizarAlumno(client, Alumno) {
+async function actualizarAlumno(client, data) {
   await client.query(
     `UPDATE alumno 
      SET legajo = $1, nombre = $2, apellido = $3, dni = $4, cuil = $5, email = $6, direccion = $7, link_docu = $8, hermanos = $9, fecha_nacimiento = $10
      WHERE id_alumno = $11`,
-    [Alumno.legajo, Alumno.nombre, Alumno.apellido, Alumno.dni, Alumno.cuil, Alumno.email, Alumno.direccion, Alumno.link_docu, Alumno.hermanos, Alumno.fecha_nacimiento, Alumno.id_alumno]
+    [data.legajo, data.nombre, data.apellido, data.dni, data.cuil, data.email, data.direccion, data.link_docu, data.hermanos, data.fecha_nacimiento, data.id_alumno]
   );
 
 }
 
-async function actualizarTutor(client, Tutor) {
+async function actualizarTutor(client, data) {
+  console.log('REPO' + data);
+  
   await client.query(
     `UPDATE tutor 
      SET nombre = $1, apellido = $2, dni = $3, cuil = $4, telefono = $5, email = $6, direccion = $7
      WHERE id_tutor = $8`,
-    [Tutor.nombre, Tutor.apellido, Tutor.dni, Tutor.cuil, Tutor.telefono, Tutor.email, Tutor.direccion, Tutor.id_tutor]
+    [data.tutor_nombre, data.tutor_apellido, data.tutor_dni, data.tutor_cuil, data.tutor_telefono, data.tutor_email, data.tutor_direccion, data.tutor_id]
   );
 }
 

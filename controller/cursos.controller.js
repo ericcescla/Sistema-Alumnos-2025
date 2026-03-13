@@ -1,4 +1,15 @@
-const services = require('./cursos.service');
+const services = require('../service/cursos.service.js');
+
+cursoIndividual = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await services.cursoIndividual(id);
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+}
 
 async function obtenerCursos(req, res) {
 
@@ -31,7 +42,6 @@ async function crearCursos(req, res) {
   }
 }
 
-
 async function alumnosPorCursos(req, res) {
   const { anioLectivo, anio, division } = req.query;
 
@@ -60,15 +70,4 @@ asignarCurso = async (req, res) => {
 
 }
 
-// async function asignarCurso(req, res) {
-//     const { idAlumno, idCurso } = req.body;
-//   try {
-//     await services.asignarCurso(idAlumno, idCurso);
-//     return res.json({ mensaje: 'Curso asignado correctamente' });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: error.message });
-//   }
-// }
-
-module.exports = { alumnosPorCursos, obtenerCursos, crearCursos, asignarCurso };
+module.exports = { alumnosPorCursos, obtenerCursos, crearCursos, asignarCurso, cursoIndividual };

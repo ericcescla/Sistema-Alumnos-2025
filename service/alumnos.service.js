@@ -45,7 +45,6 @@ async function crearAlumnoyTutor(Alumno, Tutor) {
 async function actualizarAlumnoyTutor(data) {
   const client = await pool.connect();
   try {
-    console.log('adsfa'+data);
     await client.query("BEGIN");
     await repo.actualizarAlumno(client,data);
     await repo.actualizarTutor(client, data);

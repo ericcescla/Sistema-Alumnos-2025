@@ -1,13 +1,14 @@
 require('dotenv').config();
-const logsRouter = require('./log/logs.routes');
-const usuariosRouter = require('./usuarios/usuarios.routes');
-const alumnosRouter = require('./alumnos/alumnos.routes');
-const materiasRouter = require('./materias/materias.route');
-const cursosRouter = require('./cursos/cursos.routes');
-const planesRouter = require('./routes/planes');
-const tutoresRouter = require('./tutor/tutor.route');
-const authRouter = require('./auth/auth.route');
-const authmilddleware  = require('./auth/auth.middleware');
+const logsRouter = require('./routes/logs.routes');
+const usuariosRouter = require('./routes/usuarios.routes');
+const alumnosRouter = require('./routes/alumnos.routes');
+const materiasRouter = require('./routes/materias.route');
+const cursosRouter = require('./routes/cursos.routes');
+const planesRouter = require('./routes_old/planes');
+const tutoresRouter = require('./routes/tutor.route');
+const authRouter = require('./routes/auth.route');
+const frontendRouter = require('./routes/frontend.route');
+const authmilddleware  = require('./middleware/auth.middleware.js');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -51,6 +52,7 @@ app.use('/api/materias',  materiasRouter);
 app.use('/api/alumnos',  alumnosRouter);
 app.use('/api/usuarios',  usuariosRouter);
 app.use('/api/logs',  logsRouter);
+app.use('/api/frontend', frontendRouter);
 // authmilddleware.estaAutorizado('Supervisor'),
 // authmilddleware.estaAutorizado('Supervisor'),
 // authmilddleware.estaAutorizado('Supervisor'),

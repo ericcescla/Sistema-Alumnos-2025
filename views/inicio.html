@@ -15,7 +15,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600">Total Alumnos</p>
-                            <p class="text-3xl font-bold text-gray-900">1,234</p>
+                            <p id="total-alumnos" class="text-3xl font-bold text-gray-900">...</p>
                         </div>
                         <div class="bg-blue-500 p-3 rounded-full">
                             <svg class="superIcono rojo">
@@ -30,7 +30,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-gray-600">Cursos Activos</p>
-                            <p class="text-3xl font-bold text-gray-900">45</p>
+                            <p id="cursos-activos" class="text-3xl font-bold text-gray-900">...</p>
                         </div>
                         <div class="bg-green-500 p-3 rounded-full">
                             <svg class="superIcono rojo">
@@ -234,6 +234,23 @@
         .then(data => {
             document.getElementById('svg-sprite').innerHTML = data;
         });
+
+        async function cargarDatosInicio() {
+            try {
+                const response = await fetchWithAuth('frontend/inicio');
+                if (!response.ok) throw new Error('Error al cargar datos de inicio');
+                const data = await response.json();
+                console.log('Datos de inicio:', data);
+            document.getElementById('cursos-activos').textContent = data.totalCursos;
+            document.getElementById('total-alumnos').textContent = data.totalAlumnos;
+
+                
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    window.addEventListener('DOMContentLoaded', cargarDatosInicio);
+
     </script>
 </body>
 </html>

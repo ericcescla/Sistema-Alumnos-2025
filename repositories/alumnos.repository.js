@@ -106,7 +106,7 @@ async function actualizarAlumno(client, data) {
 }
 
 async function actualizarTutor(client, data) {
-  console.log('REPO' + data);
+  
   
   await client.query(
     `UPDATE tutor 

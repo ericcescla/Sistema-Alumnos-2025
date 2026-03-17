@@ -61,8 +61,6 @@ tutor_telefono
 
 async function actualizarAlumnoyTutor(req, res) {
     try {
-        console.log(req.body);
-
        const data = req.body;
         const message = await services.actualizarAlumnoyTutor(data);
         res.json(message);

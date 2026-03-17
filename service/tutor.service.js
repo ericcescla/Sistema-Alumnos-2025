@@ -1,6 +1,6 @@
 const repo = require('../repositories/tutor.repositoty');
 
-async function buscarTutor(dni) {
+async function buscarTutores(dni) {
     const result = await repo.buscarTutor(dni);
     return result;
 }
@@ -8,3 +8,5 @@ async function buscarTutor(dni) {
 async function obtenerTutores() {
     return await repo.obtenerTutores();
 }
+
+module.exports = { buscarTutores, obtenerTutores };

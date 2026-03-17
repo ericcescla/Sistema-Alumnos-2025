@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controller/auth.controller.js');
-const milddleware = require('../middleware/auth.middleware.js');
+const milddleware = require('../middleware/usuarios.milddleware.js');
 
 router.post('/login',
   controller.login

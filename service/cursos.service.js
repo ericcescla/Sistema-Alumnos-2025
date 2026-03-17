@@ -39,6 +39,29 @@ async function alumnosPorCurso(anioLectivo, anio, division) {
     return result;
 }
 
+async function actualizarCurso(idCurso, anio, division, idPlan, anioLectivo) {
+    const curso = await repo.cursoIndividual(idCurso);
+    if (!curso) {
+        throw new Error('Curso no encontrado');
+    }
+
+    const duplicado = await repo.cursoDuplicado(anioLectivo, anio, division, idCurso);
+    if (duplicado) {
+        throw new Error(`El curso ${anio}${division} del año ${anioLectivo} ya existe`);
+    }
+
+    const idPlanFinal = idPlan === "" ? null : idPlan;
+    return await repo.actualizarCurso(idCurso, anio, division, idPlanFinal, anioLectivo);
+}
+
+async function eliminarCurso(idCurso) {
+    const curso = await repo.cursoIndividual(idCurso);
+    if (!curso) {
+        throw new Error('Curso no encontrado');
+    }
+    return await repo.eliminarCurso(idCurso);
+}
+
 
 asignarCurso = async (idAlumno, idCurso) => {
     const { rows } = await repo.alumnoYaAsignado(idAlumno, idCurso);
@@ -54,5 +77,11 @@ asignarCurso = async (idAlumno, idCurso) => {
 }
 
 module.exports = {
-    obtenerCursos, crearCurso, alumnosPorCurso, asignarCurso, cursoIndividual
+    obtenerCursos,
+    crearCurso,
+    alumnosPorCurso,
+    asignarCurso,
+    cursoIndividual,
+    actualizarCurso,
+    eliminarCurso
 }

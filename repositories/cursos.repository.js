@@ -14,75 +14,14 @@ cursoIndividual = async (id) => {
   return rows[0];
 }
 
-async function materiasPorCurso(idCurso, idPlan) {
-  const queries = [
-    {
-      text: `
-        SELECT m.id_materia, m.nombre_materia, m.profesor, m.rol_profesor
-        FROM curso_materia cm
-        JOIN materia m ON m.id_materia = cm.id_materia
-        WHERE cm.id_curso = $1
-        ORDER BY m.nombre_materia
-      `,
-      values: [idCurso]
-    },
-    {
-      text: `
-        SELECT m.id_materia, m.nombre_materia, m.profesor, m.rol_profesor
-        FROM materia_curso mc
-        JOIN materia m ON m.id_materia = mc.id_materia
-        WHERE mc.id_curso = $1
-        ORDER BY m.nombre_materia
-      `,
-      values: [idCurso]
-    },
-    {
-      text: `
-        SELECT id_materia, nombre_materia, profesor, rol_profesor
-        FROM materia
-        WHERE id_curso = $1
-        ORDER BY nombre_materia
-      `,
-      values: [idCurso]
-    }
-  ];
-
-  if (idPlan) {
-    queries.push({
-      text: `
-        SELECT m.id_materia, m.nombre_materia, m.profesor, m.rol_profesor
-        FROM plan_materia pm
-        JOIN materia m ON m.id_materia = pm.id_materia
-        WHERE pm.id_plan = $1
-        ORDER BY m.nombre_materia
-      `,
-      values: [idPlan]
-    });
-
-    queries.push({
-      text: `
-        SELECT id_materia, nombre_materia, profesor, rol_profesor
-        FROM materia
-        WHERE id_plan = $1
-        ORDER BY nombre_materia
-      `,
-      values: [idPlan]
-    });
-  }
-
-  for (const query of queries) {
-    try {
-      const { rows } = await db.query(query.text, query.values);
-      return rows;
-    } catch (error) {
-      if (error && (error.code === '42P01' || error.code === '42703')) {
-        continue;
-      }
-      throw error;
-    }
-  }
-
-  return [];
+async function materiasPorCurso(idCurso) {
+const result = await db.query(
+      `SELECT *
+       FROM materia
+       WHERE id_curso = $1`,
+      [idCurso]
+    );
+    return result.rows;
 }
 
 async function obternerCursos() {
@@ -106,9 +45,6 @@ async function crearCurso(anio, division, id_plan, anio_lectivo) {
   return rows[0];
 }
 
-
-
-
 async function alumnosPorCurso(anioLectivo, anio, division) {
 
   const { rows } = await db.query(`
@@ -125,8 +61,6 @@ async function alumnosPorCurso(anioLectivo, anio, division) {
   return rows;
 }
 
-
-
 async function findCursoExistente(anioLectivo, anio, division) {
 
   return db.query(`
@@ -139,6 +73,51 @@ async function findCursoExistente(anioLectivo, anio, division) {
        );
     `, [anioLectivo, anio, division]);
 
+}
+
+async function cursoDuplicado(anioLectivo, anio, division, idCurso) {
+  const { rows } = await db.query(`
+     SELECT EXISTS (
+       SELECT 1
+       FROM curso
+       WHERE anio_lectivo = $1
+       AND anio = $2
+       AND division = $3
+       AND id_curso <> $4
+       );
+    `, [anioLectivo, anio, division, idCurso]);
+  return rows[0].exists;
+}
+
+async function actualizarCurso(idCurso, anio, division, idPlan, anioLectivo) {
+  const { rows } = await db.query(`
+    UPDATE curso
+    SET anio = $2,
+        division = $3,
+        id_plan = $4,
+        anio_lectivo = $5
+    WHERE id_curso = $1
+    RETURNING *
+  `, [idCurso, anio, division, idPlan, anioLectivo]);
+  return rows[0];
+}
+
+async function safeDelete(text, values) {
+  try {
+    await db.query(text, values);
+  } catch (error) {
+    if (error && (error.code === '42P01' || error.code === '42703')) {
+      return;
+    }
+    throw error;
+  }
+}
+
+async function eliminarCurso(idCurso) {
+  await safeDelete('DELETE FROM alumno_curso WHERE id_curso = $1', [idCurso]);
+  await safeDelete('DELETE FROM materia WHERE id_curso = $1', [idCurso]);
+  const { rows } = await db.query('DELETE FROM curso WHERE id_curso = $1 RETURNING *', [idCurso]);
+  return rows[0];
 }
 
 asignarCurso = async (idAlumno, idCurso) => {
@@ -169,11 +148,15 @@ cursoDeAlumno = async (idAlumno) => {
     WHERE ac.id_alumno = $1
   `, [idAlumno]);
 }
+
 module.exports = {
   obternerCursos,
   crearCurso,
   alumnosPorCurso,
   findCursoExistente,
+  cursoDuplicado,
+  actualizarCurso,
+  eliminarCurso,
   asignarCurso,
   alumnoYaAsignado,
   cursoDeAlumno,

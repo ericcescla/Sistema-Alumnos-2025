@@ -26,6 +26,17 @@ async function obtenerCursos(req, res) {
   }
 }
 
+materiasPorCurso = async (req, res) => {
+  const { idCurso } = req.params;
+  try {
+    const result = await services.materiasPorCurso(idCurso);
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+}
+
 async function crearCursos(req, res) {
   const { anio, division, id_plan, anio_lectivo } = req.body;
 
@@ -58,10 +69,34 @@ async function alumnosPorCursos(req, res) {
   }
 }
 
+actualizarCurso = async (req, res) => {
+  const { id } = req.params;
+  const { anio, division, id_plan, anio_lectivo } = req.body;
+
+  try {
+    const result = await services.actualizarCurso(id, anio, division, id_plan, anio_lectivo);
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+}
+
+eliminarCurso = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await services.eliminarCurso(id);
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+}
+
 asignarCurso = async (req, res) => {
   const { idAlumno, idCurso } = req.body;
   try {
-     
+
     return res.json(await services.asignarCurso(idAlumno, idCurso));
   } catch (error) {
     console.error(error);
@@ -70,4 +105,13 @@ asignarCurso = async (req, res) => {
 
 }
 
-module.exports = { alumnosPorCursos, obtenerCursos, crearCursos, asignarCurso, cursoIndividual };
+module.exports = {
+  alumnosPorCursos,
+  obtenerCursos,
+  crearCursos,
+  asignarCurso,
+  cursoIndividual,
+  materiasPorCurso,
+  actualizarCurso,
+  eliminarCurso
+};

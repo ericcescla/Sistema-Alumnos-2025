@@ -55,6 +55,32 @@
         </div>
       </div>
 
+      <section class="bg-white shadow rounded-xl p-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 class="text-xl font-semibold">Alumnos del curso</h2>
+            <p id="alumnosResumen" class="text-sm text-gray-500">Listado de alumnos asociados al curso seleccionado.</p>
+          </div>
+          <span id="alumnosCount" class="inline-flex w-fit items-center rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">0 alumnos</span>
+        </div>
+
+        <p id="alumnosEstado" class="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">Cargando alumnos...</p>
+
+        <div id="alumnosTablaWrapper" class="mt-4 hidden overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr class="text-left text-sm font-semibold text-slate-600">
+                <th class="px-4 py-3">Legajo</th>
+                <th class="px-4 py-3">Nombre</th>
+                <th class="px-4 py-3">Apellido</th>
+                <th class="px-4 py-3">DNI</th>
+              </tr>
+            </thead>
+            <tbody id="alumnosBody" class="bg-white"></tbody>
+          </table>
+        </div>
+      </section>
+
       <div>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <h2 class="text-xl font-semibold">Materias</h2>

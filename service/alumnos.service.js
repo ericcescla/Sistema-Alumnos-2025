@@ -16,21 +16,23 @@ async function buscarAlumnoPorDni(dni) {
   return result;
 }
 //falta probar si funcina todo bien 
-async function crearAlumnoyTutor(Alumno, Tutor) {
+async function crearAlumnoyTutor(data) {
   const client = await pool.connect();
+  console.log(data);
+  
   
   
   try {
     await client.query("BEGIN");
-    const id_alumno = await repo.crearAlumno(client, Alumno);
+    const id_alumno = await repo.crearAlumno(client, data);
     
-    const tutorExistente = await repo.encontrarTutor(Tutor.dni);
+    const tutorExistente = await repo.encontrarTutor(data.tutor_dni);
     if (tutorExistente > 0 ) {
       const id_tutor = tutorExistente[0].id_tutor;
       await repo.asociarAlumnoTutor(client, id_alumno, id_tutor);
     } else {
-      const id_tutor = await repo.crearTutor(client, Tutor);
-      await repo.asociarAlumnoTutor(client, id_alumno, id_tutor);
+      const id_tutor = await repo.crearTutor(client, data);
+      await repo.vincularAlumnoTutor(client, id_alumno, id_tutor);
     }
     await client.query("COMMIT");
     return { message: "Alumno y tutor insertados con éxito" };

@@ -1,4 +1,4 @@
-const repo = require('../repositories/tutor.repositoty');
+const repo = require('../repositories/tutor.repository');
 
 async function buscarTutores(dni) {
     const result = await repo.buscarTutor(dni);

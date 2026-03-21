@@ -54,18 +54,32 @@ async function crearCursos(req, res) {
 }
 
 async function alumnosPorCursos(req, res) {
-  const { anioLectivo, anio, division } = req.query;
+  const { id } = req.params;
 
   try {
+    const result = await services.alumnosPorCurso(id);
+    const { anio, division, anio_lectivo } = result[0];
 
-    const result = await services.alumnosPorCurso(anioLectivo, anio, division);
-    res.json(result);
-
+    res.status(200).json({
+      anio,
+      division,
+      anio_lectivo,
+      alumnos: result
+        .filter(({ id_alumno }) => id_alumno != null)
+        .map(({ id_alumno, legajo, nombre, apellido, dni }) => ({
+          id_alumno,
+          legajo,
+          nombre,
+          apellido,
+          dni,
+        })),
+    });
   } catch (error) {
-
-    console.log('Error en /alumnosCurso:', error);
+    if (error.message === 'Curso no encontrado') {
+      return res.status(404).json({ error: error.message });
+    }
+    console.log('Error en /cursos/:id/alumnos:', error);
     res.status(500).json({ error: error.message });
-
   }
 }
 

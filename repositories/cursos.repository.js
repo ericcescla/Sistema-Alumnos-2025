@@ -45,22 +45,19 @@ async function crearCurso(anio, division, id_plan, anio_lectivo) {
   return rows[0];
 }
 
-async function alumnosPorCurso(anioLectivo, anio, division) {
-
+async function alumnosPorCurso(idCurso) {
   const { rows } = await db.query(`
-   SELECT a.id_alumno, a.legajo, a.nombre, a.apellido, a.dni,
-             c.anio, c.division, c.anio_lectivo
-      FROM alumno a
-      JOIN alumno_curso ac ON ac.id_alumno = a.id_alumno
-      JOIN curso c ON c.id_curso = ac.id_curso
-      WHERE c.anio_lectivo = $1
-        AND c.anio = $2
-        AND c.division = $3
-      ORDER BY a.nombre;  
-    `, [anioLectivo, anio, division]);
+    SELECT c.id_curso, c.anio, c.division, c.anio_lectivo,
+           a.id_alumno, a.legajo, a.nombre, a.apellido, a.dni
+    FROM curso c
+    LEFT JOIN alumno_curso ac ON ac.id_curso = c.id_curso
+    LEFT JOIN alumno a ON a.id_alumno = ac.id_alumno
+    WHERE c.id_curso = $1
+    ORDER BY a.apellido NULLS LAST, a.nombre NULLS LAST;
+  `, [idCurso]);
+
   return rows;
 }
-
 async function findCursoExistente(anioLectivo, anio, division) {
 
   return db.query(`

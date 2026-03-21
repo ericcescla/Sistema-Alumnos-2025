@@ -3,6 +3,7 @@ let ordenMateriasActual = "nombre";
 let cursoActual = null;
 let planesCache = null;
 let modoMateria = "crear";
+let alumnosCache = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   const ordenMaterias = document.getElementById("ordenMaterias");
@@ -48,7 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
     formMateriaEditar.addEventListener("submit", guardarMateria);
   }
 
-  const idCurso = localStorage.getItem("id_curso");
+  const cursoSeleccionado = obtenerCursoSeleccionado();
+  const idCurso = cursoSeleccionado?.id;
   if (!idCurso) {
     mostrarError("No se encontró el curso seleccionado. Volviendo al listado...");
     ocultarSkeleton();
@@ -86,9 +88,11 @@ async function cargarCurso(idCurso) {
     }
 
     cursoActual = curso;
+    persistirCursoSeleccionado(curso);
     renderCurso(curso);
     materiasCache = materias;
     renderMaterias(materiasCache);
+    await cargarAlumnosCurso(idCurso);
 
     mostrarContenido();
   } catch (error) {
@@ -117,6 +121,181 @@ function renderCurso(curso) {
   if (descripcionPlan) {
     descripcionPlan.textContent = curso.descripcion || "Sin descripción disponible";
   }
+}
+
+async function cargarAlumnosCurso(idCurso) {
+  mostrarEstadoAlumnos("Cargando alumnos...");
+
+  try {
+    const data = await obtenerAlumnosCurso(idCurso);
+    alumnosCache = Array.isArray(data.alumnos) ? data.alumnos : [];
+    actualizarResumenAlumnos(data);
+    renderAlumnos(alumnosCache);
+  } catch (error) {
+    console.error(error);
+    alumnosCache = [];
+    actualizarResumenAlumnos(cursoActual);
+    actualizarContadorAlumnos(0);
+    mostrarEstadoAlumnos("No se pudieron cargar los alumnos de este curso.", "error");
+  }
+}
+
+async function obtenerAlumnosCurso(idCurso) {
+  const res = await fetchWithAuth(`/cursos/${idCurso}/alumnos`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+
+  if (res.status === 404) {
+    return {
+      anio: cursoActual?.anio || "",
+      division: cursoActual?.division || "",
+      anio_lectivo: cursoActual?.anio_lectivo || "",
+      alumnos: []
+    };
+  }
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "No se pudieron obtener los alumnos.");
+  }
+
+  return {
+    ...data,
+    alumnos: Array.isArray(data.alumnos) ? data.alumnos : []
+  };
+}
+
+function renderAlumnos(alumnos) {
+  const tbody = document.getElementById("alumnosBody");
+  const tablaWrapper = document.getElementById("alumnosTablaWrapper");
+
+  if (!tbody || !tablaWrapper) return;
+
+  tbody.innerHTML = "";
+  actualizarContadorAlumnos(alumnos?.length || 0);
+
+  if (!Array.isArray(alumnos) || alumnos.length === 0) {
+    tablaWrapper.classList.add("hidden");
+    mostrarEstadoAlumnos("Este curso todavía no tiene alumnos asignados.");
+    return;
+  }
+
+  ocultarEstadoAlumnos();
+  tablaWrapper.classList.remove("hidden");
+
+  alumnos.forEach((alumno) => {
+    const fila = document.createElement("tr");
+    fila.className = "border-b border-slate-100 last:border-b-0";
+
+    [alumno.legajo, alumno.nombre, alumno.apellido, alumno.dni].forEach((valor) => {
+      const celda = document.createElement("td");
+      celda.className = "px-4 py-3 text-sm text-gray-700";
+      celda.textContent = valor || "-";
+      fila.appendChild(celda);
+    });
+
+    tbody.appendChild(fila);
+  });
+}
+
+function actualizarContadorAlumnos(cantidad) {
+  const contador = document.getElementById("alumnosCount");
+  if (!contador) return;
+  contador.textContent = `${cantidad} alumno${cantidad === 1 ? "" : "s"}`;
+}
+
+function actualizarResumenAlumnos(data) {
+  const resumen = document.getElementById("alumnosResumen");
+  if (!resumen) return;
+
+  const anio = data?.anio ?? cursoActual?.anio ?? "";
+  const division = data?.division ?? cursoActual?.division ?? "";
+  const anioLectivo = data?.anio_lectivo ?? cursoActual?.anio_lectivo ?? "";
+
+  if (anio && division && anioLectivo) {
+    resumen.textContent = `Curso ${anio} ${division} - Año lectivo ${anioLectivo}`;
+    return;
+  }
+
+  resumen.textContent = "Listado de alumnos asociados al curso seleccionado.";
+}
+
+function mostrarEstadoAlumnos(mensaje, tipo = "info") {
+  const estado = document.getElementById("alumnosEstado");
+  const tablaWrapper = document.getElementById("alumnosTablaWrapper");
+
+  if (tablaWrapper) tablaWrapper.classList.add("hidden");
+  if (!estado) return;
+
+  estado.textContent = mensaje;
+  estado.className = "mt-4 rounded-lg border px-4 py-3 text-sm";
+
+  if (tipo === "error") {
+    estado.classList.add("border-red-200", "bg-red-50", "text-red-700");
+    return;
+  }
+
+  estado.classList.add("border-slate-200", "bg-slate-50", "text-slate-600");
+}
+
+function ocultarEstadoAlumnos() {
+  const estado = document.getElementById("alumnosEstado");
+  if (estado) estado.classList.add("hidden");
+}
+
+function obtenerCursoSeleccionado() {
+  const cursoGuardado = localStorage.getItem("cursoSeleccionado");
+
+  if (cursoGuardado) {
+    try {
+      const curso = JSON.parse(cursoGuardado);
+      const idCurso = curso?.id ?? curso?.id_curso;
+
+      if (idCurso) {
+        localStorage.setItem("id_curso", String(idCurso));
+        return {
+          ...curso,
+          id: idCurso,
+          id_curso: curso?.id_curso ?? idCurso
+        };
+      }
+    } catch (error) {
+      console.warn("No se pudo leer cursoSeleccionado desde localStorage.", error);
+    }
+  }
+
+  const idCurso = localStorage.getItem("id_curso");
+  if (!idCurso) return null;
+
+  return {
+    id: idCurso,
+    id_curso: idCurso
+  };
+}
+
+function persistirCursoSeleccionado(curso) {
+  if (!curso) return;
+
+  const idCurso = curso.id ?? curso.id_curso;
+  if (!idCurso) return;
+
+  localStorage.setItem("id_curso", String(idCurso));
+  localStorage.setItem("cursoSeleccionado", JSON.stringify({
+    id: idCurso,
+    id_curso: idCurso,
+    anio: curso.anio || "",
+    division: curso.division || "",
+    anio_lectivo: curso.anio_lectivo || "",
+    id_plan: curso.id_plan ?? null,
+    nombre_plan: curso.nombre_plan || ""
+  }));
+}
+
+function limpiarCursoSeleccionado() {
+  localStorage.removeItem("id_curso");
+  localStorage.removeItem("cursoSeleccionado");
 }
 
 function renderMaterias(materias) {
@@ -302,7 +481,7 @@ async function eliminarCurso() {
       alert(data.error || "No se pudo eliminar el curso.");
       return;
     }
-    localStorage.removeItem("id_curso");
+    limpiarCursoSeleccionado();
     if (window.top && typeof window.top.cargarVista === "function") {
       window.top.cargarVista("cursos/cursos_general.html");
       return;

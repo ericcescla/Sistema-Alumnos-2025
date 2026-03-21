@@ -49,7 +49,7 @@ async function buscarAlumnoPorDni(dni) {
       LEFT JOIN tutor t ON at.id_tutor = t.id_tutor
       WHERE a.dni = $1
     `, [dni]);
-  console.log("repo THIS IS BUSCAR ALUMNO POR DNI", result.rows[0]);
+  // console.log("repo THIS IS BUSCAR ALUMNO POR DNI", result);
 
   return result.rows[0] || 0;
 }
@@ -75,13 +75,13 @@ async function crearAlumno(client, Alumno) {
   return id_alumno;
 }
 
-async function crearTutor(client, Tutor) {
+async function crearTutor(client, data) {
   const nuevoTutor = await client.query(
     `INSERT INTO tutor 
       (nombre, apellido, dni, cuil, telefono, email, direccion) 
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id_tutor`
-    , [Tutor.nombre, Tutor.apellido, Tutor.dni, Tutor.cuil, Tutor.telefono, Tutor.email, Tutor.direccion]);
+    , [data.tutor_nombre, data.tutor_apellido, data.tutor_dni, data.tutor_cuil, data.tutor_telefono, data.tutor_email, data.tutor_direccion]);
 
   const id_tutor = nuevoTutor.rows[0].id_tutor;
 
@@ -96,6 +96,8 @@ async function vincularAlumnoTutor(client, id_alumno, id_tutor) {
 }
 
 async function actualizarAlumno(client, data) {
+  // console.log('alumno ' + data.legajo, data.nombre, data.apellido, data.dni, data.cuil, data.email, data.direccion, data.link_docu, data.hermanos, data.fecha_nacimiento, data.id_alumno);
+  
   await client.query(
     `UPDATE alumno 
      SET legajo = $1, nombre = $2, apellido = $3, dni = $4, cuil = $5, email = $6, direccion = $7, link_docu = $8, hermanos = $9, fecha_nacimiento = $10
@@ -103,16 +105,16 @@ async function actualizarAlumno(client, data) {
     [data.legajo, data.nombre, data.apellido, data.dni, data.cuil, data.email, data.direccion, data.link_docu, data.hermanos, data.fecha_nacimiento, data.id_alumno]
   );
 
+
 }
 
 async function actualizarTutor(client, data) {
-  
-  
+    
   await client.query(
     `UPDATE tutor 
      SET nombre = $1, apellido = $2, dni = $3, cuil = $4, telefono = $5, email = $6, direccion = $7
      WHERE id_tutor = $8`,
-    [data.tutor_nombre, data.tutor_apellido, data.tutor_dni, data.tutor_cuil, data.tutor_telefono, data.tutor_email, data.tutor_direccion, data.tutor_id]
+    [data.tutor_nombre, data.tutor_apellido, data.tutor_dni, data.tutor_cuil, data.tutor_telefono, data.tutor_email, data.tutor_direccion, data.id_tutor]
   );
 }
 

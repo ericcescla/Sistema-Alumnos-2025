@@ -24,32 +24,9 @@ async function buscarAlumno(req, res) {
 
 async function crearAlumnoyTutor(req, res) {
     try {
+        const data = req.body;
         
-        const Alumno =  {
-            legajo,
-            nombre, 
-            apellido, 
-            dni,            
-            cuil,
-            email, 
-            direccion, 
-            link_docu, 
-            hermanos, 
-            fecha_nacimiento,
-        } = req.body;
-        const Tutor = {
-            nombre:tutor_nombre, 
-            apellido:tutor_apellido,
-            dni:tutor_dni,
-            cuil:tutor_cuil,
-            telefono:tutor_telefono,
-            email:tutor_email,
-            direccion:tutor_direccion
-        } = req.body;
-tutor_telefono
-        
-        
-        const message = await services.crearAlumnoyTutor(Alumno, Tutor);
+        const message = await services.crearAlumnoyTutor(data);
         res.status(201).json(message);
 
     } catch (error) {

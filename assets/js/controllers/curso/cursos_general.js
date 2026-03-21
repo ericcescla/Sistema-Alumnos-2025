@@ -1,6 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     const tbody = document.querySelector("#tabla-cursos tbody");
+    if (!tbody) return;
+
+    tbody.addEventListener("click", (event) => {
+        const botonDetalle = event.target.closest("[data-action='ver-detalle-curso']");
+        if (!botonDetalle) return;
+
+        abrirDetalleCurso({
+            id: botonDetalle.dataset.idCurso,
+            id_curso: botonDetalle.dataset.idCurso,
+            anio: botonDetalle.dataset.anio,
+            division: botonDetalle.dataset.division,
+            anio_lectivo: botonDetalle.dataset.anioLectivo,
+            id_plan: botonDetalle.dataset.idPlan || null
+        });
+    });
+
     fetchWithAuth("/cursos")
     .then(res => res.json())
     .then(data => {
@@ -17,7 +33,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                     <td class="px-4 py-2 text-center">
-                        <button class="inline-flex items-center justify-center gap-1 rounded-full bg-green-50 py-0.5 pl-2.5 pr-2 text-sm font-medium text-green-600 dark:bg-green-500/15 dark:text-green-500" onclick="abrirDetalleCurso(${curso.id_curso})">Ver más</button>
+                        <button
+                            type="button"
+                            class="inline-flex items-center justify-center gap-1 rounded-full bg-green-50 py-0.5 pl-2.5 pr-2 text-sm font-medium text-green-600 dark:bg-green-500/15 dark:text-green-500"
+                            data-action="ver-detalle-curso"
+                            data-id-curso="${curso.id_curso}"
+                            data-anio="${curso.anio}"
+                            data-division="${curso.division}"
+                            data-anio-lectivo="${curso.anio_lectivo}"
+                            data-id-plan="${curso.id_plan ?? ""}"
+                        >Ver más</button>
                     </td>
                     
                 `
@@ -280,7 +305,28 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function abrirDetalleCurso(idCurso) {
-  localStorage.setItem('id_curso', idCurso);
+  const curso = typeof idCurso === "object" && idCurso !== null
+    ? idCurso
+    : { id: idCurso, id_curso: idCurso };
+  const cursoId = curso.id ?? curso.id_curso;
+
+  if (!cursoId) {
+    console.error("No se pudo abrir el detalle del curso porque falta el id.");
+    return;
+  }
+
+  const idNormalizado = Number.isNaN(Number(cursoId)) ? String(cursoId) : Number(cursoId);
+
+  localStorage.setItem('id_curso', String(cursoId));
+  localStorage.setItem('cursoSeleccionado', JSON.stringify({
+    id: idNormalizado,
+    id_curso: idNormalizado,
+    anio: curso.anio || "",
+    division: curso.division || "",
+    anio_lectivo: curso.anio_lectivo || "",
+    id_plan: curso.id_plan === "" || curso.id_plan == null ? null : Number(curso.id_plan)
+  }));
+
   if (window.top && typeof window.top.cargarVista === "function") {
     window.top.cargarVista('cursos/cursos_detalles.html');
     return;

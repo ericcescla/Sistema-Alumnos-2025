@@ -8,6 +8,7 @@ const planesRouter = require('./routes_old/planes');
 const tutoresRouter = require('./routes/tutor.route');
 const authRouter = require('./routes/auth.route');
 const frontendRouter = require('./routes/frontend.route');
+const profeRouter = require('./routes/profe.routes');
 const authmilddleware  = require('./middleware/auth.middleware.js');
 const express = require('express');
 const cors = require('cors');
@@ -53,6 +54,7 @@ app.use('/api/alumnos',  alumnosRouter);
 app.use('/api/usuarios',  usuariosRouter);
 app.use('/api/logs',  logsRouter);
 app.use('/api/frontend', frontendRouter);
+app.use('/api/profesores',  profeRouter);
 // authmilddleware.estaAutorizado('Supervisor'),
 // authmilddleware.estaAutorizado('Supervisor'),
 // authmilddleware.estaAutorizado('Supervisor'),

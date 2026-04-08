@@ -34,6 +34,7 @@ app.use(function(req, res, next) {
 });
 
 // Archivos estáticos
+app.use('/css', express.static('assets/css'));
 app.use('/assets', express.static('assets'));
 app.use('/views', express.static('views'));
 app.use('/services', express.static('services'));

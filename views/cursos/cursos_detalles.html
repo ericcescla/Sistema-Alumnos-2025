@@ -6,6 +6,10 @@
   <title>Detalle del Curso</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/assets/css/base.css">
+  <link href="/css/output.css" rel="stylesheet">
+
+
+  
 </head>
 <body class="bg-gray-50 text-slate-800">
 
@@ -157,16 +161,49 @@
           <input id="materiaNombre" type="text" class="w-full border rounded-md px-3 py-2" required>
         </div>
         <div>
-          <label class="text-sm text-gray-600">Profesor</label>
-          <input id="materiaProfesor" type="text" class="w-full border rounded-md px-3 py-2">
-        </div>
-        <div>
-          <label class="text-sm text-gray-600">Rol</label>
-          <select id="materiaRol" class="w-full border rounded-md px-3 py-2">
-            <option value="Titular">Titular</option>
-            <option value="Suplente">Suplente</option>
-            <option value="Auxiliar">Auxiliar</option>
-          </select>
+          <div class="flex items-center justify-between">
+            <label class="text-sm text-gray-600">Profesores</label>
+            <span class="text-xs text-gray-400">Máximo 2</span>
+          </div>
+          <p id="materiaProfesoresEstado" class="mt-1 text-xs text-slate-500">Consultando profesores disponibles...</p>
+          <div class="mt-3 space-y-3">
+            <div class="space-y-2 rounded-lg border border-slate-200 p-3">
+              <label for="materiaProfesor1" class="text-sm text-gray-600">Profesor 1</label>
+              <select id="materiaProfesor1" class="w-full border rounded-md px-3 py-2"></select>
+              <label for="materiaRol1" class="text-sm text-gray-600">Rol</label>
+              <select id="materiaRol1" class="w-full border rounded-md px-3 py-2">
+                <option value="Titular">Titular</option>
+                <option value="Suplente">Suplente</option>
+                <option value="Auxiliar">Auxiliar</option>
+              </select>
+            </div>
+            <button
+              type="button"
+              id="btnAgregarSegundoProfesor"
+              class="inline-flex items-center justify-center rounded-md border border-blue-200 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50"
+            >
+              Agregar segundo profesor
+            </button>
+            <div id="bloqueProfesor2" class="hidden space-y-2 rounded-lg border border-slate-200 p-3">
+              <div class="flex items-center justify-between gap-2">
+                <label for="materiaProfesor2" class="text-sm text-gray-600">Profesor 2</label>
+                <button
+                  type="button"
+                  id="btnQuitarSegundoProfesor"
+                  class="text-xs font-medium text-red-600 hover:text-red-700"
+                >
+                  Quitar
+                </button>
+              </div>
+              <select id="materiaProfesor2" class="w-full border rounded-md px-3 py-2"></select>
+              <label for="materiaRol2" class="text-sm text-gray-600">Rol</label>
+              <select id="materiaRol2" class="w-full border rounded-md px-3 py-2">
+                <option value="Titular">Titular</option>
+                <option value="Suplente">Suplente</option>
+                <option value="Auxiliar">Auxiliar</option>
+              </select>
+            </div>
+          </div>
         </div>
         <div class="flex justify-end gap-2">
           <button type="button" id="btnCancelarMateria" class="px-3 py-2 rounded-md border">Cancelar</button>

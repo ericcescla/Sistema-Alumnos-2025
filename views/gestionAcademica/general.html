@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <!-- Conexion tailwind -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <script src="https://cdn.tailwindcss.com"></script>     -->
     <link rel="stylesheet" href="/assets/css/base.css">
+  <link href="/css/output.css" rel="stylesheet">
+
 
 </head>
 
@@ -35,16 +37,16 @@
                             <p class="text-sm text-gray-600">Agrupar materias por curso</p>
                         </div>
                     </div>
-                    <div
-                        class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                        <div class="p-6 text-center">
+                    <button id="ir-profesores" type="button"
+                        class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer text-left">
+                        <div class="p-6 text-center w-full">
                             <svg class="superDuperIcono rojo mx-auto">
                                 <use xlink:href="#star-outline"></use>
                             </svg>
-                            <h3 class="font-semibold text-gray-900 mb-2">Cargar Notas</h3>
-                            <p class="text-sm text-gray-600">Calificaciones por materia</p>
+                            <h3 class="font-semibold text-gray-900 mb-2">Profesores</h3>
+                            <p class="text-sm text-gray-600">Acceder al subapartado de profesores</p>
                         </div>
-                    </div>
+                    </button>
                     <div
                         class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                         <div class="p-6 text-center">
@@ -126,6 +128,18 @@
         .then(data => {
             document.getElementById('svg-sprite').innerHTML = data;
         });
+
+        const botonIrProfesores = document.getElementById('ir-profesores');
+
+        botonIrProfesores.addEventListener('click', () => {
+            if (window.top && typeof window.top.cargarVista === 'function') {
+                window.top.cargarVista('gestionAcademica/profesores.html');
+                return;
+            }
+
+            window.location.href = '/views/gestionAcademica/profesores.html';
+        });
+
     </script>
 </body>
 

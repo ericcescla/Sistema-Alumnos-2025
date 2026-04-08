@@ -10,6 +10,9 @@ exports.obtenerProfesores = async () => {
 };
 
 exports.crearProfesor = async (data) => {
+    if (!data.nombre || !data.apellido) {
+        throw new Error('Faltan campos obligatorios: nombre y apellido');
+    }
     return await repo.crearProfesor(data);
 };
 

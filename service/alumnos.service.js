@@ -18,10 +18,6 @@ async function buscarAlumnoPorDni(dni) {
 //falta probar si funcina todo bien 
 async function crearAlumnoyTutor(data) {
   const client = await pool.connect();
-  console.log(data);
-  
-  
-  
   try {
     await client.query("BEGIN");
     const id_alumno = await repo.crearAlumno(client, data);

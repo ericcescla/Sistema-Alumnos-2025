@@ -12,7 +12,7 @@ exports.obtenerProfesores = async (req, res) => {
 
 exports.crearProfesor = async (req, res) => {
     try {
-        const nuevoProfesor = await service.crearProfesor(req.body);
+        const nuevoProfesor = await service.crearProfesor(req.body);        
         res.status(201).json(nuevoProfesor);
     } catch (error) {
         res.status(500).json({ error: 'Error al crear profesor' });
@@ -23,25 +23,21 @@ exports.crearProfesor = async (req, res) => {
 
 exports.actualizarProfesor = async (req, res) => {
     try {
-
-        const profesorActualizado = await service.actualizarProfesor(req.params.id, req.body);  
-        return profesorActualizado;
-
+        const profesorActualizado = await service.actualizarProfesor(req.params.id, req.body);
+        res.json(profesorActualizado);
     } catch (error) {
         res.status(500).json({ error: 'Error al actualizar profesor' });
-        console.error('Error al obtener profesores:', error);   
-
+        console.error('Error al actualizar profesor:', error);
     }
 };
 
 exports.eliminarProfesor = async (req, res) => {
     try {
         const eliminado = await service.eliminarProfesor(req.params.id);
-        return eliminado;
-       
+        res.json({ message: 'Profesor eliminado correctamente', eliminado });
     } catch (error) {
         res.status(500).json({ error: 'Error al eliminar profesor' });
-        console.error('Error al obtener profesores:', error);
+        console.error('Error al eliminar profesor:', error);
     }
 };
 

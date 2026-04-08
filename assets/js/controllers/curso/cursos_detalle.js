@@ -4,6 +4,7 @@ let cursoActual = null;
 let planesCache = null;
 let modoMateria = "crear";
 let alumnosCache = [];
+let profesoresCache = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   const ordenMaterias = document.getElementById("ordenMaterias");
@@ -39,6 +40,20 @@ document.addEventListener("DOMContentLoaded", () => {
     btnAgregarMateria.addEventListener("click", abrirCrearMateria);
   }
 
+  const btnAgregarSegundoProfesor = document.getElementById("btnAgregarSegundoProfesor");
+  if (btnAgregarSegundoProfesor) {
+    btnAgregarSegundoProfesor.addEventListener("click", () => {
+      mostrarSegundoProfesor();
+    });
+  }
+
+  const btnQuitarSegundoProfesor = document.getElementById("btnQuitarSegundoProfesor");
+  if (btnQuitarSegundoProfesor) {
+    btnQuitarSegundoProfesor.addEventListener("click", () => {
+      ocultarSegundoProfesor();
+    });
+  }
+
   const formCursoEditar = document.getElementById("formCursoEditar");
   if (formCursoEditar) {
     formCursoEditar.addEventListener("submit", actualizarCurso);
@@ -63,6 +78,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   cargarCurso(idCurso);
+  cargarProfesoresDisponibles().catch((error) => {
+    console.error(error);
+  });
 });
 
 async function cargarCurso(idCurso) {
@@ -90,7 +108,7 @@ async function cargarCurso(idCurso) {
     cursoActual = curso;
     persistirCursoSeleccionado(curso);
     renderCurso(curso);
-    materiasCache = materias;
+    materiasCache = await completarMateriasConProfesores(materias);
     renderMaterias(materiasCache);
     await cargarAlumnosCurso(idCurso);
 
@@ -298,6 +316,306 @@ function limpiarCursoSeleccionado() {
   localStorage.removeItem("cursoSeleccionado");
 }
 
+function escaparHtml(valor) {
+  return String(valor ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+async function completarMateriasConProfesores(materias) {
+  if (!Array.isArray(materias) || !materias.length) {
+    return [];
+  }
+
+  const faltanProfesores = materias.some((materia) => !Array.isArray(materia?.profesores));
+  if (!faltanProfesores) {
+    return materias.map((materia) => ({
+      ...materia,
+      profesores: Array.isArray(materia?.profesores) ? materia.profesores : []
+    }));
+  }
+
+  try {
+    const response = await fetchWithAuth("/materias", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Respuesta ${response.status}`);
+    }
+
+    const data = await response.json();
+    const materiasPorId = new Map(
+      (Array.isArray(data) ? data : []).map((materia) => [String(materia.id_materia), materia])
+    );
+
+    return materias.map((materia) => {
+      const materiaConProfesores = materiasPorId.get(String(materia.id_materia));
+
+      return {
+        ...materia,
+        profesores: Array.isArray(materiaConProfesores?.profesores)
+          ? materiaConProfesores.profesores
+          : Array.isArray(materia?.profesores)
+            ? materia.profesores
+            : []
+      };
+    });
+  } catch (error) {
+    console.error("No se pudieron completar los profesores de las materias.", error);
+    return materias.map((materia) => ({
+      ...materia,
+      profesores: Array.isArray(materia?.profesores) ? materia.profesores : []
+    }));
+  }
+}
+
+function normalizarProfesor(profesor) {
+  if (!profesor || typeof profesor !== "object") {
+    return null;
+  }
+
+  const idProfesor = profesor.id_profesor ?? profesor.id ?? profesor.profesorId ?? null;
+  const nombre = String(
+    profesor.nombre ?? profesor.nombre_profesor ?? profesor.nombre_materia ?? ""
+  ).trim();
+  const apellido = String(profesor.apellido ?? "").trim();
+  const rolProfesor = String(
+    profesor.rol_profesor ?? profesor.rolProfesor ?? profesor.rol ?? ""
+  ).trim() || "Titular";
+
+  if (!idProfesor && !nombre && !apellido) {
+    return null;
+  }
+
+  return {
+    id_profesor: idProfesor,
+    nombre,
+    apellido,
+    rol_profesor: rolProfesor
+  };
+}
+
+function obtenerNombreProfesorCompleto(profesor) {
+  const partes = [profesor?.nombre, profesor?.apellido]
+    .map((valor) => String(valor || "").trim())
+    .filter(Boolean);
+
+  return partes.length ? partes.join(" ") : "Profesor sin nombre";
+}
+
+function obtenerProfesoresMateria(materia) {
+  if (!Array.isArray(materia?.profesores)) {
+    return [];
+  }
+
+  return materia.profesores
+    .map(normalizarProfesor)
+    .filter(Boolean)
+    .slice(0, 2);
+}
+
+function obtenerResumenProfesores(materia) {
+  const profesores = obtenerProfesoresMateria(materia);
+  if (!profesores.length) {
+    return "Sin asignar";
+  }
+
+  return profesores.map(obtenerNombreProfesorCompleto).join(" / ");
+}
+
+function obtenerClaveOrdenProfesor(materia) {
+  const resumen = obtenerResumenProfesores(materia);
+  return resumen === "Sin asignar" ? "\uffff" : resumen.toLowerCase();
+}
+
+function renderProfesoresMateria(materia) {
+  const profesores = obtenerProfesoresMateria(materia);
+
+  if (!profesores.length) {
+    return `
+      <p><span class="font-medium">Profesores:</span> Sin asignar</p>
+    `;
+  }
+
+  return `
+    <div>
+      <p class="font-medium text-gray-700">Profesores</p>
+      <div class="mt-2 space-y-2">
+        ${profesores.map((profesor) => `
+          <div class="rounded-md bg-slate-50 px-3 py-2">
+            <p class="font-medium text-slate-700">${escaparHtml(obtenerNombreProfesorCompleto(profesor))}</p>
+            <p class="mt-1 flex items-center gap-2">
+              <span class="text-gray-500">Rol:</span>
+              ${renderRolBadge(profesor.rol_profesor || "Sin rol")}
+            </p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function actualizarEstadoProfesoresMateria(mensaje, tipo = "info") {
+  const estado = document.getElementById("materiaProfesoresEstado");
+  if (!estado) return;
+
+  const estilos = {
+    info: "text-slate-500",
+    success: "text-green-700",
+    error: "text-red-700"
+  };
+
+  estado.className = `mt-1 text-xs ${estilos[tipo] || estilos.info}`;
+  estado.textContent = mensaje;
+}
+
+function mostrarSegundoProfesor() {
+  const bloque = document.getElementById("bloqueProfesor2");
+  const botonAgregar = document.getElementById("btnAgregarSegundoProfesor");
+
+  if (bloque) bloque.classList.remove("hidden");
+  if (botonAgregar) botonAgregar.classList.add("hidden");
+}
+
+function ocultarSegundoProfesor() {
+  const bloque = document.getElementById("bloqueProfesor2");
+  const botonAgregar = document.getElementById("btnAgregarSegundoProfesor");
+  const selectProfesor2 = document.getElementById("materiaProfesor2");
+  const selectRol2 = document.getElementById("materiaRol2");
+
+  if (selectProfesor2) selectProfesor2.value = "";
+  if (selectRol2) selectRol2.value = "Titular";
+  if (bloque) bloque.classList.add("hidden");
+  if (botonAgregar) botonAgregar.classList.remove("hidden");
+}
+
+function renderProfesoresSelects(profesores, seleccionados = []) {
+  const profesoresDisponibles = [...profesores];
+
+  seleccionados
+    .map(normalizarProfesor)
+    .filter((profesor) => profesor?.id_profesor)
+    .forEach((profesor) => {
+      const yaExiste = profesoresDisponibles.some(
+        (disponible) => String(disponible.id_profesor) === String(profesor.id_profesor)
+      );
+
+      if (!yaExiste) {
+        profesoresDisponibles.push(profesor);
+      }
+    });
+
+  const configuraciones = [
+    { selectId: "materiaProfesor1", seleccionado: seleccionados[0]?.id_profesor ?? "" },
+    { selectId: "materiaProfesor2", seleccionado: seleccionados[1]?.id_profesor ?? "" }
+  ];
+
+  configuraciones.forEach(({ selectId, seleccionado }) => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    select.innerHTML = "";
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Sin asignar";
+    select.appendChild(placeholder);
+
+    profesoresDisponibles.forEach((profesor) => {
+      const option = document.createElement("option");
+      option.value = String(profesor.id_profesor);
+      option.textContent = obtenerNombreProfesorCompleto(profesor);
+      select.appendChild(option);
+    });
+
+    select.value = String(seleccionado || "");
+  });
+}
+
+async function obtenerProfesoresDesdeEndpoint(url) {
+  return fetchWithAuth(url);
+}
+
+async function cargarProfesoresDisponibles(force = false) {
+  if (!force && profesoresCache.length) {
+    renderProfesoresSelects(profesoresCache);
+    actualizarEstadoProfesoresMateria("Profesores cargados correctamente.", "success");
+    return profesoresCache;
+  }
+
+  actualizarEstadoProfesoresMateria("Consultando profesores disponibles...", "info");
+
+  try {
+    const response = await obtenerProfesoresDesdeEndpoint("/profesores");
+
+    if (!response.ok) {
+      throw new Error(`Respuesta ${response.status}`);
+    }
+
+    const data = await response.json();
+    const profesores = Array.isArray(data)
+      ? data
+          .map(normalizarProfesor)
+          .filter(Boolean)
+          .sort((a, b) => obtenerNombreProfesorCompleto(a).localeCompare(obtenerNombreProfesorCompleto(b)))
+      : [];
+
+    profesoresCache = profesores;
+    renderProfesoresSelects(profesoresCache);
+    actualizarEstadoProfesoresMateria(
+      profesoresCache.length
+        ? "Profesores cargados correctamente."
+        : "No hay profesores disponibles para seleccionar.",
+      profesoresCache.length ? "success" : "info"
+    );
+    return profesoresCache;
+  } catch (error) {
+    profesoresCache = [];
+    renderProfesoresSelects([]);
+    actualizarEstadoProfesoresMateria(
+      `No se pudieron obtener los profesores${error?.message ? `: ${error.message}` : "."}`,
+      "error"
+    );
+    throw error;
+  }
+}
+
+function construirProfesoresSeleccionados() {
+  const configuraciones = [
+    { selectId: "materiaProfesor1", rolId: "materiaRol1" },
+    { selectId: "materiaProfesor2", rolId: "materiaRol2" }
+  ];
+
+  const profesores = configuraciones
+    .map(({ selectId, rolId }) => {
+      const select = document.getElementById(selectId);
+      const rol = document.getElementById(rolId);
+      const profesorId = select?.value ? Number(select.value) : null;
+
+      if (!profesorId) {
+        return null;
+      }
+
+      return {
+        profesorId,
+        rolProfesor: rol?.value || "Titular"
+      };
+    })
+    .filter(Boolean);
+
+  const ids = profesores.map(({ profesorId }) => profesorId);
+  if (new Set(ids).size !== ids.length) {
+    throw new Error("No se puede seleccionar el mismo profesor dos veces.");
+  }
+
+  return profesores;
+}
+
 function renderMaterias(materias) {
   const contenedor = document.getElementById("listaMaterias");
   const emptyState = document.getElementById("materiasEmpty");
@@ -315,21 +633,18 @@ function renderMaterias(materias) {
 
   const materiasOrdenadas = [...materias];
   if (ordenMateriasActual === "profesor") {
-    materiasOrdenadas.sort((a, b) => (a.profesor || "").localeCompare(b.profesor || ""));
+    materiasOrdenadas.sort((a, b) => obtenerClaveOrdenProfesor(a).localeCompare(obtenerClaveOrdenProfesor(b)));
   } else {
     materiasOrdenadas.sort((a, b) => (a.nombre_materia || "").localeCompare(b.nombre_materia || ""));
   }
 
   const cards = materiasOrdenadas.map(materia => {
-    const profesor = materia.profesor ? materia.profesor : "Sin asignar";
-    const rol = materia.rol_profesor ? materia.rol_profesor : "Sin rol";
     const materiaId = String(materia.id_materia);
     return `
       <div class="bg-white border rounded-lg p-4 hover:shadow transition">
-        <h3 class="font-semibold text-lg">${materia.nombre_materia || "Materia sin nombre"}</h3>
-        <div class="mt-2 text-sm text-gray-600">
-          <p><span class="font-medium">Profesor:</span> ${profesor}</p>
-          <p class="flex items-center gap-2"><span class="font-medium">Rol:</span> ${renderRolBadge(rol)}</p>
+        <h3 class="font-semibold text-lg">${escaparHtml(materia.nombre_materia || "Materia sin nombre")}</h3>
+        <div class="mt-2 text-sm text-gray-600 space-y-2">
+          ${renderProfesoresMateria(materia)}
         </div>
         <div class="mt-3 flex items-center justify-end gap-2">
           <button class="px-3 py-1 text-xs rounded-md border" onclick="abrirEditarMateria('${materiaId}')">Editar</button>
@@ -352,7 +667,7 @@ function renderRolBadge(rol) {
     classes = "bg-yellow-100 text-yellow-800";
   }
 
-  return `<span class="${classes} text-xs px-2 py-1 rounded">${rol}</span>`;
+  return `<span class="${classes} text-xs px-2 py-1 rounded">${escaparHtml(rol || "Sin rol")}</span>`;
 }
 
 function mostrarContenido() {
@@ -493,42 +808,74 @@ async function eliminarCurso() {
   }
 }
 
-function abrirEditarMateria(idMateria) {
+async function abrirEditarMateria(idMateria) {
   const materia = materiasCache.find(m => String(m.id_materia) === String(idMateria));
   if (!materia) return;
+
+  const profesoresMateria = obtenerProfesoresMateria(materia);
+  await cargarProfesoresDisponibles().catch((error) => {
+    console.error(error);
+  });
+
   modoMateria = "editar";
   const titulo = document.getElementById("tituloModalMateria");
   if (titulo) titulo.textContent = "Actualizar materia";
   document.getElementById("materiaId").value = materia.id_materia;
   document.getElementById("materiaNombre").value = materia.nombre_materia || "";
-  document.getElementById("materiaProfesor").value = materia.profesor || "";
-  document.getElementById("materiaRol").value = materia.rol_profesor || "Titular";
+  renderProfesoresSelects(profesoresCache, profesoresMateria);
+  document.getElementById("materiaRol1").value = profesoresMateria[0]?.rol_profesor || "Titular";
+  document.getElementById("materiaRol2").value = profesoresMateria[1]?.rol_profesor || "Titular";
+  if (profesoresMateria[1]) {
+    mostrarSegundoProfesor();
+  } else {
+    ocultarSegundoProfesor();
+  }
   mostrarModal("modalMateria");
 }
 
-function abrirCrearMateria() {
+async function abrirCrearMateria() {
+  await cargarProfesoresDisponibles().catch((error) => {
+    console.error(error);
+  });
+
   modoMateria = "crear";
   const titulo = document.getElementById("tituloModalMateria");
   if (titulo) titulo.textContent = "Agregar materia";
   document.getElementById("materiaId").value = "";
   document.getElementById("materiaNombre").value = "";
-  document.getElementById("materiaProfesor").value = "";
-  document.getElementById("materiaRol").value = "Titular";
+  renderProfesoresSelects(profesoresCache);
+  document.getElementById("materiaRol1").value = "Titular";
+  document.getElementById("materiaRol2").value = "Titular";
+  ocultarSegundoProfesor();
   mostrarModal("modalMateria");
 }
 
 async function guardarMateria(event) {
   event.preventDefault();
   const nombre = document.getElementById("materiaNombre").value.trim();
-  const profesor = document.getElementById("materiaProfesor").value.trim();
-  const rolProfesor = document.getElementById("materiaRol").value;
+  let profesores = [];
+
+  try {
+    profesores = construirProfesoresSeleccionados();
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
+
+  const payload = {
+    materia: {
+      nombre_materia: nombre,
+      idCurso: cursoActual?.id_curso
+    },
+    profesores
+  };
 
   try {
     if (modoMateria === "crear") {
       const res = await fetchWithAuth(`/materias`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, profesor, rolProfesor, idCurso: cursoActual?.id_curso })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (!res.ok) {
@@ -541,7 +888,7 @@ async function guardarMateria(event) {
       const res = await fetchWithAuth(`/materias/${idMateria}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, profesor, rolProfesor, idCurso: cursoActual?.id_curso })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (!res.ok) {

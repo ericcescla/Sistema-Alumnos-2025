@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let pageName = 'Página desconocida';
     
     if (path.includes('cursos.html')) pageName = 'Cursos';
+    else if (path.includes('gestionAcademica/')) pageName = 'Gestión Académica';
     else if (path.includes('gestionAcademica.html')) pageName = 'Gestión Académica';
     else if (path.includes('ofiAlumnos.html')) pageName = 'Oficina de Alumnos';
     else if (path.includes('config.html')) pageName = 'Configuración';

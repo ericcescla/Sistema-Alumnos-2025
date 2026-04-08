@@ -2,8 +2,10 @@ const service = require('../service/materias.service.js');
 
 crearMateria = async (req, res) => {
     try{
-        const { nombre, profesor, rolProfesor, idCurso } = req.body;
-        const resultado = await service.crearMateria(nombre, profesor, rolProfesor, idCurso);
+        const materia = req.body.materia;
+        const profesores = req.body.profesores;
+        
+        const resultado = await service.crearMateria(materia, profesores);
         res.status(201).json(resultado);
     } catch (error){
         console.error(error);
@@ -13,9 +15,12 @@ crearMateria = async (req, res) => {
 
 actualizarMateria = async (req, res) => {
     try{
-        const { id } = req.params;
-        const { nombre, profesor, rolProfesor, idCurso } = req.body;
-        const resultado = await service.actualizarMateria(id, nombre, profesor, rolProfesor, idCurso);
+        // console.log(req);
+        const id = req.params.id;
+        const materia = req.body.materia;
+        const profesores = req.body.profesores;
+
+        const resultado = await service.actualizarMateria(materia, profesores, id);
         res.json(resultado);
     } catch (error){
         console.error(error);
@@ -44,9 +49,21 @@ obtenerMaterias = async (req, res) => {
     }
 }
 
+obtenerMateriaPorId = async (req, res) => {
+    try{
+        const { id } = req.params;
+        const resultado = await service.obtenerMateriaPorId(id);
+        res.json(resultado);
+    } catch (error){
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener materia por ID'});
+    }
+}
+
 module.exports = {
     obtenerMaterias,
     crearMateria,
     actualizarMateria,
-    eliminarMateria
+    eliminarMateria, 
+    obtenerMateriaPorId
 }

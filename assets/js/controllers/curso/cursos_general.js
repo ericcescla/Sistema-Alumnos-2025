@@ -184,6 +184,137 @@ btnBuscarCurso.addEventListener("click", async () => {
 let materiasCache = [];
 let ordenMateriasActual = "nombre";
 
+function escaparHtml(valor) {
+    return String(valor ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+async function completarMateriasConProfesores(materias) {
+    if (!Array.isArray(materias) || !materias.length) {
+      return [];
+    }
+
+    const faltanProfesores = materias.some((materia) => !Array.isArray(materia?.profesores));
+    if (!faltanProfesores) {
+      return materias.map((materia) => ({
+        ...materia,
+        profesores: Array.isArray(materia?.profesores) ? materia.profesores : []
+      }));
+    }
+
+    try {
+      const response = await fetchWithAuth("/materias", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Respuesta ${response.status}`);
+      }
+
+      const data = await response.json();
+      const materiasPorId = new Map(
+        (Array.isArray(data) ? data : []).map((materia) => [String(materia.id_materia), materia])
+      );
+
+      return materias.map((materia) => {
+        const materiaConProfesores = materiasPorId.get(String(materia.id_materia));
+
+        return {
+          ...materia,
+          profesores: Array.isArray(materiaConProfesores?.profesores)
+            ? materiaConProfesores.profesores
+            : Array.isArray(materia?.profesores)
+              ? materia.profesores
+              : []
+        };
+      });
+    } catch (error) {
+      console.error("No se pudieron completar los profesores de las materias.", error);
+      return materias.map((materia) => ({
+        ...materia,
+        profesores: Array.isArray(materia?.profesores) ? materia.profesores : []
+      }));
+    }
+  }
+
+function normalizarProfesor(profesor) {
+    if (!profesor || typeof profesor !== "object") return null;
+
+  const nombre = String(
+    profesor.nombre ?? profesor.nombre_profesor ?? profesor.nombre_materia ?? ""
+  ).trim();
+  const apellido = String(profesor.apellido ?? "").trim();
+  const rolProfesor = String(
+    profesor.rol_profesor ?? profesor.rolProfesor ?? profesor.rol ?? ""
+  ).trim() || "Titular";
+
+  if (!nombre && !apellido) return null;
+
+  return {
+    nombre,
+    apellido,
+    rol_profesor: rolProfesor
+  };
+}
+
+function obtenerNombreProfesorCompleto(profesor) {
+  const partes = [profesor?.nombre, profesor?.apellido]
+    .map((valor) => String(valor || "").trim())
+    .filter(Boolean);
+
+  return partes.length ? partes.join(" ") : "Profesor sin nombre";
+}
+
+function obtenerProfesoresMateria(materia) {
+  if (!Array.isArray(materia?.profesores)) {
+    return [];
+  }
+
+  return materia.profesores
+    .map(normalizarProfesor)
+    .filter(Boolean)
+    .slice(0, 2);
+}
+
+function obtenerClaveOrdenProfesor(materia) {
+  const profesores = obtenerProfesoresMateria(materia);
+  if (!profesores.length) {
+    return "\uffff";
+  }
+
+  return profesores.map(obtenerNombreProfesorCompleto).join(" / ").toLowerCase();
+}
+
+function renderProfesoresMateria(materia) {
+  const profesores = obtenerProfesoresMateria(materia);
+
+  if (!profesores.length) {
+    return `<p><span class="font-medium">Profesores:</span> Sin asignar</p>`;
+  }
+
+  return `
+    <div>
+      <p class="font-medium text-gray-700">Profesores</p>
+      <div class="mt-2 space-y-2">
+        ${profesores.map((profesor) => `
+          <div class="rounded-md bg-slate-50 px-3 py-2">
+            <p class="font-medium text-slate-700">${escaparHtml(obtenerNombreProfesorCompleto(profesor))}</p>
+            <p class="mt-1 flex items-center gap-2">
+              <span class="text-gray-500">Rol:</span>
+              ${renderRolBadge(profesor.rol_profesor || "Sin rol")}
+            </p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
 
 async function cargarCurso(idCurso) {
   const cursoSkeleton = document.getElementById("cursoSkeleton");
@@ -209,7 +340,7 @@ async function cargarCurso(idCurso) {
     const materias = Array.isArray(data.materias) ? data.materias : [];
 
     renderCurso(curso);
-    materiasCache = materias;
+    materiasCache = await completarMateriasConProfesores(materias);
     renderMaterias(materiasCache);
 
     if (cursoContenido) cursoContenido.classList.remove("hidden");
@@ -259,20 +390,17 @@ function renderMaterias(materias) {
 
   const materiasOrdenadas = [...materias];
   if (ordenMateriasActual === "profesor") {
-    materiasOrdenadas.sort((a, b) => (a.profesor || "").localeCompare(b.profesor || ""));
+    materiasOrdenadas.sort((a, b) => obtenerClaveOrdenProfesor(a).localeCompare(obtenerClaveOrdenProfesor(b)));
   } else {
     materiasOrdenadas.sort((a, b) => (a.nombre_materia || "").localeCompare(b.nombre_materia || ""));
   }
 
   const cards = materiasOrdenadas.map(materia => {
-    const profesor = materia.profesor ? materia.profesor : "Sin asignar";
-    const rol = materia.rol_profesor ? materia.rol_profesor : "Sin rol";
     return `
       <div class="bg-white border rounded-lg p-4 hover:shadow transition">
-        <h3 class="font-semibold text-lg">${materia.nombre_materia || "Materia sin nombre"}</h3>
-        <div class="mt-2 text-sm text-gray-600">
-          <p><span class="font-medium">Profesor:</span> ${profesor}</p>
-          <p class="flex items-center gap-2"><span class="font-medium">Rol:</span> ${renderRolBadge(rol)}</p>
+        <h3 class="font-semibold text-lg">${escaparHtml(materia.nombre_materia || "Materia sin nombre")}</h3>
+        <div class="mt-2 text-sm text-gray-600 space-y-2">
+          ${renderProfesoresMateria(materia)}
         </div>
       </div>
     `;
@@ -291,7 +419,7 @@ function renderRolBadge(rol) {
     classes = "bg-yellow-100 text-yellow-800";
   }
 
-  return `<span class="${classes} text-xs px-2 py-1 rounded">${rol}</span>`;
+  return `<span class="${classes} text-xs px-2 py-1 rounded">${escaparHtml(rol || "Sin rol")}</span>`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {

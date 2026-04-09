@@ -1,8 +1,10 @@
 const service = require('../service/profe.service.js');
+const { hacerExcel } = require('../service/excel.service.js');
 
 exports.obtenerProfesores = async (req, res) => {
     try {
         const profesores = await service.obtenerProfesores();
+        // await service.excelProfe(profesores);
         res.json(profesores);
     } catch (error) {
         res.status(500).json({ error: 'Error al obtener profesores' });
@@ -41,3 +43,17 @@ exports.eliminarProfesor = async (req, res) => {
     }
 };
 
+exports.exportarProfesores = async (req, res) => {
+    const profesores = await service.obtenerProfesores();
+
+    await hacerExcel({
+        res,
+        sheetName: 'Profesores',
+        fileName: 'profesores.xlsx',
+        columns: [
+            { header: 'Nombre', key: 'nombre', width: 20 },
+            { header: 'Apellido', key: 'apellido', width: 20 }
+        ],
+        data: profesores
+    });
+};

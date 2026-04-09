@@ -1,4 +1,5 @@
 const repo = require('../repositories/profe.repository');
+const Exjs = require('exceljs');
 
 exports.obtenerProfesores = async () => {
     const result = await repo.obtenerProfesores();
@@ -34,3 +35,61 @@ exports.eliminarProfesor = async (id) => {
     }
 };
 
+
+// exports.excelProfe = async (profesores) => {
+//     const workbook = new Exjs.Workbook();
+//     const worksheet = workbook.addWorksheet('Profesores');
+
+//     worksheet.columns = [
+//         { header: 'ID Profesor', key: 'id_profesor', width: 20 },
+//         { header: 'Nombre', key: 'nombre', width: 20 },
+//         { header: 'Apellido', key: 'apellido', width: 20 },
+//     ];
+
+//     worksheet.getRow(1).font = {
+//         bold: true,
+//         color: { argb: 'FFFFFFFF' }
+//     };
+
+//     worksheet.getRow(1).fill = {
+//         type: 'pattern',
+//         pattern: 'solid',
+//         fgColor: { argb: '1F4E78' }
+//     };
+
+//     worksheet.getRow(1).alignment = {
+//         horizontal: 'center',
+//         vertical: 'middle'
+//     };
+
+//     profesores.forEach(profesor => {
+//         worksheet.addRow({
+//             id_profesor: profesor.id_profesor,
+//             nombre: profesor.nombre,
+//             apellido: profesor.apellido
+//         });
+//     });
+
+//     worksheet.eachRow((row) => {
+//         row.eachCell((cell) => {
+//             cell.border = {
+//                 top: { style: 'thin' },
+//                 left: { style: 'thin' },
+//                 bottom: { style: 'thin' },
+//                 right: { style: 'thin' }
+//             };
+//         });
+//     });
+
+//     worksheet.views = [
+//         { state: 'frozen', ySplit: 1 }
+//     ];
+
+//     // Guardar archivo
+//     await workbook.xlsx.writeFile('profesores.xlsx');
+
+//     console.log('Excel generado correctamente');
+// }
+// async function generarExcelProfesores(profesores) {
+ 
+// }

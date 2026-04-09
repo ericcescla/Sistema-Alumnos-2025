@@ -24,6 +24,10 @@
                         <p class="mt-2 text-gray-600">Consulta y seguimiento del cuerpo docente registrado.</p>
                     </div>
                     <div class="flex items-center gap-3">
+                        <button id="exportar-profesores" type="button"
+                            class="inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            Exportar Excel
+                        </button>
                         <button id="crear-profesor" type="button"
                             class="inline-flex items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                             
@@ -113,6 +117,7 @@
         const tablaProfesores = document.getElementById('tabla-profesores');
         const estadoProfesores = document.getElementById('estado-profesores');
         const cantidadProfesores = document.getElementById('cantidad-profesores');
+        const botonExportarProfesores = document.getElementById('exportar-profesores');
 
         function actualizarEstadoProfesores(mensaje, tipo) {
             const estilos = {
@@ -145,6 +150,17 @@
                     window.parent.postMessage({ tipo: 'ajustarAltura', altura }, '*');
                 }
             });
+        }
+
+        function obtenerNombreArchivoDesdeHeaders(response) {
+            const disposition = response.headers.get('Content-Disposition') || '';
+            const matchUtf = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+            if (matchUtf?.[1]) {
+                return decodeURIComponent(matchUtf[1]);
+            }
+
+            const match = disposition.match(/filename="?([^"]+)"?/i);
+            return match?.[1] || 'profesores.xlsx';
         }
 
         function renderizarProfesores(profesores) {
@@ -238,6 +254,37 @@
             cantidadProfesores.textContent = '0';
             actualizarEstadoProfesores(`Error al obtener profesores: ${ultimoError?.message || 'sin detalle'}.`, 'error');
             ajustarAlturaIframe();
+        }
+
+        async function exportarProfesores() {
+            botonExportarProfesores.disabled = true;
+            botonExportarProfesores.classList.add('opacity-70', 'cursor-not-allowed');
+            actualizarEstadoProfesores('Preparando archivo de profesores...', 'info');
+
+            try {
+                const response = await fetchWithAuth('/api/profesores/export');
+
+                if (!response.ok) {
+                    throw new Error(`Respuesta ${response.status}`);
+                }
+
+                const archivo = await response.blob();
+                const urlTemporal = URL.createObjectURL(archivo);
+                const link = document.createElement('a');
+                link.href = urlTemporal;
+                link.download = obtenerNombreArchivoDesdeHeaders(response);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(urlTemporal);
+
+                actualizarEstadoProfesores('Exportacion completada correctamente.', 'success');
+            } catch (error) {
+                actualizarEstadoProfesores(`Error al exportar profesores: ${error.message}`, 'error');
+            } finally {
+                botonExportarProfesores.disabled = false;
+                botonExportarProfesores.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
         }
 
         const modalProfesor = document.getElementById('modal-profesor');
@@ -351,6 +398,8 @@
         document.getElementById('crear-profesor').addEventListener('click', () => {
             abrirModal('crear');
         });
+
+        botonExportarProfesores.addEventListener('click', exportarProfesores);
 
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('editar-profesor')) {

@@ -49,7 +49,7 @@ async function buscarAlumnoPorDni(dni) {
       LEFT JOIN tutor t ON at.id_tutor = t.id_tutor
       WHERE a.dni = $1
     `, [dni]);
-  // console.log("repo THIS IS BUSCAR ALUMNO POR DNI", result);
+  // console.log("repo THIS IS BUSCAR ALUMNO POR DNI", result.rows);
 
   return result.rows[0] || 0;
 }

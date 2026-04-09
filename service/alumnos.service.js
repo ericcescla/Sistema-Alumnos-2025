@@ -7,7 +7,9 @@ async function obtenerAlumnos(anio, division) {
 }
 
 async function buscarAlumnoPorDni(dni) {
+  
   const result = await repo.buscarAlumnoPorDni(dni);
+  // console.log(result);
 
   if (result.length === 0) {
     error: "alumno no encontrado";

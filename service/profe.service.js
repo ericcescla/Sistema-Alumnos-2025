@@ -93,3 +93,10 @@ exports.eliminarProfesor = async (id) => {
 // async function generarExcelProfesores(profesores) {
  
 // }
+
+exports.bulkInsertProfesores = async (profesores) => {
+    if (!profesores.length) {
+        throw new Error('No se proporcionaron profesores para importar');
+    }
+    await repo.bulkInsertProfesores(profesores);
+}

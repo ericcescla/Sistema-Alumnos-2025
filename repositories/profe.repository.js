@@ -22,3 +22,32 @@ exports.eliminarProfesor = async (id) => {
     return result.rows[0];
 }; 
 
+exports.bulkInsertProfesores = async (profesores) => {
+    if (!profesores.length) return;
+
+    const values = [];
+    const placeholders = [];
+
+    profesores.forEach((profesor, index) => {
+        const baseIndex = index * 2;
+
+        placeholders.push(
+            `($${baseIndex + 1}, $${baseIndex + 2})`
+        );
+
+        values.push(
+            profesor.nombre,
+            profesor.apellido
+        );
+    });
+
+    const query = `
+        INSERT INTO profesores (nombre, apellido)
+        VALUES ${placeholders.join(', ')}
+        RETURNING *;
+    `;
+
+    const result = await db.query(query, values);
+
+    return result.rows;
+};

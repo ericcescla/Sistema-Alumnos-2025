@@ -5,6 +5,8 @@ async function login(req, res) {
     const { usuario, password } = req.body;
     
     const result = await service.login(usuario, password, req.ip);
+    console.log(result);
+    
     res.json(result);
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

@@ -23,7 +23,15 @@
                         <h1 class="text-2xl font-bold text-gray-900">Profesores</h1>
                         <p class="mt-2 text-gray-600">Consulta y seguimiento del cuerpo docente registrado.</p>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button id="descargar-plantilla-profesores" type="button"
+                            class="inline-flex items-center justify-center gap-2 rounded-md bg-slate-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2">
+                            Descargar plantilla
+                        </button>
+                        <button id="importar-profesores" type="button"
+                            class="inline-flex items-center justify-center gap-2 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2">
+                            Importar Excel
+                        </button>
                         <button id="exportar-profesores" type="button"
                             class="inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                             Exportar Excel
@@ -34,6 +42,9 @@
                             Crear Profesor
                         </button>
                     </div>
+                    <input id="input-importar-profesores" type="file"
+                        accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                        class="hidden">
                 </div>
             </div>
 
@@ -100,6 +111,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="/services/api.js"></script>
     <script src="/assets/js/js/pageAccess.js"></script>
     <script>
@@ -117,13 +129,16 @@
         const tablaProfesores = document.getElementById('tabla-profesores');
         const estadoProfesores = document.getElementById('estado-profesores');
         const cantidadProfesores = document.getElementById('cantidad-profesores');
+        const botonDescargarPlantillaProfesores = document.getElementById('descargar-plantilla-profesores');
+        const botonImportarProfesores = document.getElementById('importar-profesores');
+        const inputImportarProfesores = document.getElementById('input-importar-profesores');
         const botonExportarProfesores = document.getElementById('exportar-profesores');
 
         function actualizarEstadoProfesores(mensaje, tipo) {
             const estilos = {
                 info: 'border-blue-200 bg-blue-50 text-blue-700',
                 success: 'border-green-200 bg-green-50 text-green-700',
-                error: 'border-blue-200 bg-blue-50 text-blue-700'
+                error: 'border-red-200 bg-red-50 text-red-700'
             };
 
             estadoProfesores.className = `mb-4 rounded-lg border px-4 py-3 text-sm ${estilos[tipo] || estilos.info}`;
@@ -152,7 +167,7 @@
             });
         }
 
-        function obtenerNombreArchivoDesdeHeaders(response) {
+        function obtenerNombreArchivoDesdeHeaders(response, fallbackFileName = 'profesores.xlsx') {
             const disposition = response.headers.get('Content-Disposition') || '';
             const matchUtf = disposition.match(/filename\*=UTF-8''([^;]+)/i);
             if (matchUtf?.[1]) {
@@ -160,7 +175,176 @@
             }
 
             const match = disposition.match(/filename="?([^"]+)"?/i);
-            return match?.[1] || 'profesores.xlsx';
+            return match?.[1] || fallbackFileName;
+        }
+
+        function alternarEstadoBoton(button, disabled) {
+            if (!button) return;
+
+            button.disabled = disabled;
+            button.classList.toggle('opacity-70', disabled);
+            button.classList.toggle('cursor-not-allowed', disabled);
+        }
+
+        async function obtenerMensajeErrorResponse(response, fallbackMessage) {
+            try {
+                const contentType = response.headers.get('Content-Type') || '';
+
+                if (contentType.includes('application/json')) {
+                    const data = await response.json();
+                    if (typeof data?.error === 'string' && data.error.trim()) {
+                        return data.error.trim();
+                    }
+
+                    if (typeof data?.message === 'string' && data.message.trim()) {
+                        return data.message.trim();
+                    }
+                }
+
+                const text = (await response.text()).trim();
+                if (text) {
+                    return text;
+                }
+            } catch (error) {
+                console.error('No se pudo leer el detalle del error de importacion.', error);
+            }
+
+            return fallbackMessage;
+        }
+
+        function normalizarTextoExcel(valor) {
+            return String(valor ?? '').trim();
+        }
+
+        function normalizarCabeceraExcel(valor) {
+            return normalizarTextoExcel(valor)
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase();
+        }
+
+        function validarArchivoExcel(file) {
+            if (!file) return false;
+
+            const nombre = String(file.name || '').toLowerCase();
+            return nombre.endsWith('.xlsx') || nombre.endsWith('.xls');
+        }
+
+        async function importarProfesoresDesdeEndpoint(file) {
+            const formData = new FormData();
+            formData.append('archivo', file);
+
+            const response = await fetchWithAuth('/api/profesores/import', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const error = new Error(
+                    await obtenerMensajeErrorResponse(response, `Respuesta ${response.status}`)
+                );
+                error.status = response.status;
+                throw error;
+            }
+
+            return response.json().catch(() => ({}));
+        }
+
+        async function leerProfesoresDesdeExcel(file) {
+            if (typeof XLSX === 'undefined') {
+                throw new Error('No se pudo cargar el lector de Excel en el navegador.');
+            }
+
+            const buffer = await file.arrayBuffer();
+            const workbook = XLSX.read(buffer, { type: 'array' });
+            const primeraHoja = workbook.SheetNames?.[0];
+
+            if (!primeraHoja) {
+                throw new Error('El archivo no contiene hojas para importar.');
+            }
+
+            const filas = XLSX.utils.sheet_to_json(workbook.Sheets[primeraHoja], {
+                header: 1,
+                defval: ''
+            });
+
+            if (!Array.isArray(filas) || !filas.length) {
+                throw new Error('El archivo esta vacio.');
+            }
+
+            const [cabeceras = [], ...filasDatos] = filas;
+            const primeraCabecera = normalizarCabeceraExcel(cabeceras[0]);
+            const segundaCabecera = normalizarCabeceraExcel(cabeceras[1]);
+
+            if (primeraCabecera !== 'nombre' || segundaCabecera !== 'apellido') {
+                throw new Error('La planilla debe tener Nombre y Apellido como primeras columnas.');
+            }
+
+            const profesores = [];
+            const filasOmitidas = [];
+
+            filasDatos.forEach((fila, index) => {
+                const numeroFila = index + 2;
+                const nombre = normalizarTextoExcel(fila?.[0]);
+                const apellido = normalizarTextoExcel(fila?.[1]);
+
+                if (!nombre && !apellido) {
+                    return;
+                }
+
+                if (!nombre || !apellido) {
+                    filasOmitidas.push(numeroFila);
+                    return;
+                }
+
+                profesores.push({
+                    nombre,
+                    apellido,
+                    numeroFila
+                });
+            });
+
+            if (!profesores.length) {
+                if (filasOmitidas.length) {
+                    throw new Error(`No hay filas completas para importar. Revise las filas ${filasOmitidas.join(', ')}.`);
+                }
+
+                throw new Error('No se encontraron profesores para importar en la planilla.');
+            }
+
+            return { profesores, filasOmitidas };
+        }
+
+        async function importarProfesoresFilaPorFila(profesores) {
+            let creados = 0;
+            const errores = [];
+
+            for (const [index, profesor] of profesores.entries()) {
+                actualizarEstadoProfesores(`Importando profesores (${index + 1}/${profesores.length})...`, 'info');
+
+                try {
+                    const response = await fetchWithAuth('/api/profesores', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            nombre: profesor.nombre,
+                            apellido: profesor.apellido
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(
+                            await obtenerMensajeErrorResponse(response, `Respuesta ${response.status}`)
+                        );
+                    }
+
+                    creados += 1;
+                } catch (error) {
+                    errores.push(`fila ${profesor.numeroFila}: ${error.message}`);
+                }
+            }
+
+            return { creados, errores };
         }
 
         function renderizarProfesores(profesores) {
@@ -256,13 +440,19 @@
             ajustarAlturaIframe();
         }
 
-        async function exportarProfesores() {
-            botonExportarProfesores.disabled = true;
-            botonExportarProfesores.classList.add('opacity-70', 'cursor-not-allowed');
-            actualizarEstadoProfesores('Preparando archivo de profesores...', 'info');
+        async function descargarArchivoProfesores({
+            endpoint,
+            button,
+            loadingMessage,
+            successMessage,
+            errorPrefix,
+            fallbackFileName
+        }) {
+            alternarEstadoBoton(button, true);
+            actualizarEstadoProfesores(loadingMessage, 'info');
 
             try {
-                const response = await fetchWithAuth('/api/profesores/export');
+                const response = await fetchWithAuth(endpoint);
 
                 if (!response.ok) {
                     throw new Error(`Respuesta ${response.status}`);
@@ -272,18 +462,124 @@
                 const urlTemporal = URL.createObjectURL(archivo);
                 const link = document.createElement('a');
                 link.href = urlTemporal;
-                link.download = obtenerNombreArchivoDesdeHeaders(response);
+                link.download = obtenerNombreArchivoDesdeHeaders(response, fallbackFileName);
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
                 URL.revokeObjectURL(urlTemporal);
 
-                actualizarEstadoProfesores('Exportacion completada correctamente.', 'success');
+                actualizarEstadoProfesores(successMessage, 'success');
             } catch (error) {
-                actualizarEstadoProfesores(`Error al exportar profesores: ${error.message}`, 'error');
+                actualizarEstadoProfesores(`${errorPrefix}: ${error.message}`, 'error');
             } finally {
-                botonExportarProfesores.disabled = false;
-                botonExportarProfesores.classList.remove('opacity-70', 'cursor-not-allowed');
+                alternarEstadoBoton(button, false);
+            }
+        }
+
+        async function exportarProfesores() {
+            return descargarArchivoProfesores({
+                endpoint: '/api/profesores/export',
+                button: botonExportarProfesores,
+                loadingMessage: 'Preparando archivo de profesores...',
+                successMessage: 'Exportacion completada correctamente.',
+                errorPrefix: 'Error al exportar profesores',
+                fallbackFileName: 'profesores.xlsx'
+            });
+        }
+
+        async function descargarPlantillaProfesores() {
+            return descargarArchivoProfesores({
+                endpoint: '/api/profesores/plantilla',
+                button: botonDescargarPlantillaProfesores,
+                loadingMessage: 'Preparando plantilla de profesores...',
+                successMessage: 'Plantilla descargada correctamente.',
+                errorPrefix: 'Error al descargar la plantilla',
+                fallbackFileName: 'profesores_plantilla.xlsx'
+            });
+        }
+
+        async function importarProfesoresDesdeArchivo(file) {
+            if (!file) {
+                return;
+            }
+
+            if (!validarArchivoExcel(file)) {
+                actualizarEstadoProfesores('Seleccione un archivo Excel valido (.xlsx o .xls).', 'error');
+                inputImportarProfesores.value = '';
+                return;
+            }
+
+            alternarEstadoBoton(botonImportarProfesores, true);
+            inputImportarProfesores.disabled = true;
+            actualizarEstadoProfesores(`Preparando importacion de ${file.name}...`, 'info');
+
+            try {
+                let mensajeFinal = '';
+                let tipoFinal = 'success';
+
+                try {
+                    const resultado = await importarProfesoresDesdeEndpoint(file);
+                    const cantidad = Number(resultado?.count);
+                    const mensaje = typeof resultado?.message === 'string' && resultado.message.trim()
+                        ? resultado.message.trim()
+                        : 'Profesores importados correctamente.';
+
+                    mensajeFinal = Number.isFinite(cantidad)
+                        ? `${mensaje} Registros procesados: ${cantidad}.`
+                        : mensaje;
+                    tipoFinal = 'success';
+
+                    actualizarEstadoProfesores(
+                        Number.isFinite(cantidad)
+                            ? `${mensaje} Registros procesados: ${cantidad}.`
+                            : mensaje,
+                        'success'
+                    );
+                } catch (error) {
+                    if (error?.status && error.status < 500) {
+                        throw error;
+                    }
+
+                    console.warn('La importacion directa de profesores fallo. Se usara el fallback en frontend.', error);
+                    actualizarEstadoProfesores('La importacion directa no estuvo disponible. Procesando la planilla desde el navegador...', 'info');
+
+                    const { profesores, filasOmitidas } = await leerProfesoresDesdeExcel(file);
+                    const { creados, errores } = await importarProfesoresFilaPorFila(profesores);
+
+                    const mensajes = [];
+
+                    if (creados) {
+                        mensajes.push(`Se importaron ${creados} profesor${creados === 1 ? '' : 'es'}.`);
+                    }
+
+                    if (filasOmitidas.length) {
+                        mensajes.push(`Se omitieron las filas incompletas: ${filasOmitidas.join(', ')}.`);
+                    }
+
+                    if (errores.length) {
+                        const detalleErrores = errores.slice(0, 3).join('; ');
+                        mensajes.push(`Fallaron ${errores.length} fila${errores.length === 1 ? '' : 's'} (${detalleErrores}${errores.length > 3 ? '; ...' : ''}).`);
+                    }
+
+                    mensajeFinal = mensajes.join(' ') || 'No se encontraron filas validas para importar.';
+                    tipoFinal = errores.length ? (creados ? 'info' : 'error') : 'success';
+
+                    actualizarEstadoProfesores(
+                        mensajeFinal,
+                        tipoFinal
+                    );
+                }
+
+                await cargarProfesores();
+                if (mensajeFinal) {
+                    actualizarEstadoProfesores(mensajeFinal, tipoFinal);
+                }
+            } catch (error) {
+                actualizarEstadoProfesores(`Error al importar profesores: ${error.message}`, 'error');
+            } finally {
+                alternarEstadoBoton(botonImportarProfesores, false);
+                inputImportarProfesores.disabled = false;
+                inputImportarProfesores.value = '';
             }
         }
 
@@ -399,6 +695,16 @@
             abrirModal('crear');
         });
 
+        botonImportarProfesores.addEventListener('click', () => {
+            inputImportarProfesores.click();
+        });
+
+        inputImportarProfesores.addEventListener('change', async (event) => {
+            const [file] = event.target.files || [];
+            await importarProfesoresDesdeArchivo(file);
+        });
+
+        botonDescargarPlantillaProfesores.addEventListener('click', descargarPlantillaProfesores);
         botonExportarProfesores.addEventListener('click', exportarProfesores);
 
         document.addEventListener('click', (e) => {

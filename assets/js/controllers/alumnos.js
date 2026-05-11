@@ -13,7 +13,8 @@ function cargarAlumnos() {
   if (division) params.push(`division=${division}`);
   if (params.length) url += '?' + params.join('&');
 
-  fetch(url)
+  fetchWithAuth(url, { method: "GET" })
+
     .then(res => res.json())
     .then(data => {
       tbody.innerHTML = '';
@@ -55,7 +56,7 @@ document.addEventListener("DOMContentLoaded", cargarAlumnos);
 function verMasAlumno(alumno) {
   const detalleDiv = document.getElementById("detalleAlumno");
 
-detalleDiv.innerHTML = `
+  detalleDiv.innerHTML = `
   <div class="flex gap-6">
     <!-- Columna Alumno -->
     <fieldset class="flex-1 border border-gray-300 p-4 rounded-b-none border-b-4 border-blue-800">
@@ -86,57 +87,38 @@ detalleDiv.innerHTML = `
   </div>
 `;
 
-mostrarModal(document.getElementById("modalVerMas"));
+  mostrarModal(document.getElementById("modalVerMas"));
+
 
 }
 
 
 //Maneja la data de la creacion de alumno
-document.getElementById("formAlumno").addEventListener("submit", async function(e) {
+document.getElementById("formAlumno").addEventListener("submit", async function (e) {
   e.preventDefault();
 
   const formData = new FormData(this);
   const data = Object.fromEntries(formData.entries());
 
-  const usuarioStr = localStorage.getItem('usuario');
-  const usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
-
-  const limpiarNumero = (str) => {
-    if (!str || str === '') return '';
-    return str.toString().replace(/[^\d]/g, '');
-  };
-
-  // Convertir tipos
+  // Convertir el coso de variantes
   data.hermanos = data.hermanos === "true";
-  data.legajo = Number(limpiarNumero(data.legajo));
-  data.dni = Number(limpiarNumero(data.dni));
-  data.cuil = Number(limpiarNumero(data.cuil));
-  data.tutor_dni = Number(limpiarNumero(data.tutor_dni));
-  data.tutor_cuil = Number(limpiarNumero(data.tutor_cuil));
+  data.legajo = Number(data.legajo);
+  data.dni = Number(data.dni);
+  data.cuil = Number(data.cuil);
+  data.tutor_dni = Number(data.tutor_dni);
+  data.tutor_cuil = Number(data.tutor_cuil);
 
   try {
-    const response = await fetch("/alumnos", {
+    const response = await fetchWithAuth("/alumnos", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(data)
     });
 
-    if (!response.ok) throw new Error("Error al insertar alumno con tutor");
 
-    // ✅ REGISTRAR EN LA BITÁCORA (igual que pageAccess.js, userActions.js, etc.)
-    if (usuario) {
-      await fetch('http://localhost:3000/api/logs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id_operacion: 12,
-          id_usuario: usuario.id_usuario,
-          ip: null,
-          detalle: `El usuario ${usuario.nombre} creó alumno: ${data.nombre} ${data.apellido} (DNI: ${data.dni}) con tutor ${data.tutor_nombre} ${data.tutor_apellido}`,
-          usuario_afectado: null
-        })
-      });
-    }
+    if (!response.ok) throw new Error("Error al insertar alumno con tutor");
 
     alert("Alumno y tutor insertados correctamente");
     location.reload();
@@ -151,7 +133,6 @@ function abrirFormularioEdicion(alumno) {
   llenarFormulario("formAlumnoEditar", alumno);
   mostrarModal(document.getElementById("modalEditarAlumno"));
 }
-
 //proceso de buscar alumno para editar
 configurarBuscadorEntidad({
   inputs: [
@@ -163,50 +144,31 @@ configurarBuscadorEntidad({
 });
 
 
-document.getElementById("formAlumnoEditar").addEventListener("submit", async function(e) {
+
+
+document.getElementById("formAlumnoEditar").addEventListener("submit", async function (e) {
   e.preventDefault();
 
   const formData = new FormData(this);
   const data = Object.fromEntries(formData.entries());
 
-  const usuarioStr = localStorage.getItem('usuario');
-  const usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
-
-  const limpiarNumero = (str) => {
-    if (!str || str === '') return '';
-    return str.toString().replace(/[^\d]/g, '');
-  };
-
-  data.legajo = Number(limpiarNumero(data.legajo));
-  data.dni = Number(limpiarNumero(data.dni));
-  data.cuil = Number(limpiarNumero(data.cuil));
-  data.tutor_dni = Number(limpiarNumero(data.tutor_dni));
-  data.tutor_cuil = Number(limpiarNumero(data.tutor_cuil));
+  data.legajo = Number(data.legajo);
+  data.dni = Number(data.dni);
+  data.cuil = Number(data.cuil);
+  data.tutor_dni = Number(data.tutor_dni);
+  data.tutor_cuil = Number(data.tutor_cuil);
   data.hermanos = data.hermanos === "true";
 
   try {
-    const response = await fetch(`/alumnos/${data.id_alumno}`, {
+    const response = await fetchWithAuth(`/alumnos/${data.id_alumno}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(data)
     });
 
     if (!response.ok) throw new Error("Error al actualizar alumno");
-
-    // ✅ REGISTRAR EN LA BITÁCORA
-    if (usuario) {
-      await fetch('http://localhost:3000/api/logs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id_operacion: 13,
-          id_usuario: usuario.id_usuario,
-          ip: null,
-          detalle: `El usuario ${usuario.nombre} actualizó alumno: ${data.nombre} ${data.apellido} (DNI: ${data.dni})`,
-          usuario_afectado: null
-        })
-      });
-    }
 
     alert("Alumno actualizado correctamente");
     location.reload();

@@ -35,7 +35,7 @@ function configurarBuscadorEntidad({
           .map(v => `${encodeURIComponent(v.campo)}=${encodeURIComponent(v.valor)}`)
           .join("&");
 
-        const response = await fetch(`${endpoint}?${queryParams}`);
+        const response = await fetchWithAuth(`${endpoint}?${queryParams}`);
         if (!response.ok) throw new Error(`Error al obtener datos de ${endpoint}`);
 
         const entidad = await response.json(); // /buscar devuelve UN registro

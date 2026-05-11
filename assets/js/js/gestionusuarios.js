@@ -6,7 +6,7 @@ let search = "";
 
 // ========== CARGAR USUARIOS Y COMPLETAR TABLA ==========
 async function cargarUsuarios() {
-    const res = await fetch(`http://localhost:3000/api/usuarios?search=${encodeURIComponent(search)}&page=${pagina}&limit=${limite}`);
+    const res = await fetchWithAuth(`/usuarios?search=${encodeURIComponent(search)}&page=${pagina}&limit=${limite}`);
     const data = await res.json();
     const tbody = document.getElementById('usuariosBody');
     tbody.innerHTML = "";
@@ -53,7 +53,7 @@ async function cargarUsuarios() {
 
 // ========== USUARIOS POR ROL ==========
 async function cargarUsuariosPorRol() {
-    const res = await fetch('http://localhost:3000/api/usuarios/usuarios-por-rol');
+    const res = await fetchWithAuth('/usuarios/usuarios-por-rol');
     const data = await res.json();
     const contenedor = document.getElementById('usuariosPorRolContainer');
     contenedor.innerHTML = '';

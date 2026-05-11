@@ -151,3 +151,62 @@
   grid-column: span 2; /* Botón ocupa ambas columnas */
 }
 
+/* Estilos para modal de buscar/editar */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+#resultadosBusqueda {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.resultado-item {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-left: 4px solid #007bff;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.resultado-item:hover {
+  background: linear-gradient(135deg, #e0e7ff 0%, #a8b5d1 100%);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  transform: translateX(5px);
+}
+
+.resultado-item.alumno {
+  border-left-color: #0066cc;
+}
+
+.resultado-item strong {
+  color: #0066cc;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.resultado-item small {
+  color: #666;
+  display: block;
+}
+
+.vistaDetalles {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

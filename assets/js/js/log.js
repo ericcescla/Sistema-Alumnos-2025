@@ -3,8 +3,9 @@ async function registrarLog(id_operacion, detalle, usuario_afectado = null) {
     const usuarioStr = localStorage.getItem('usuario');
     if (!usuarioStr) return;
     const usuario = JSON.parse(usuarioStr);
+
     try {
-        await fetch('http://localhost:3000/api/logs', {
+        await fetchWithAuth('/logs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

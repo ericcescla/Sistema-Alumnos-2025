@@ -27,7 +27,7 @@ function buscarUsuarioParaPermiso() {
         document.getElementById('btnGuardarRolPermisos').classList.add('hidden');
         return;
     }
-    fetch(`http://localhost:3000/api/usuarios?search=${encodeURIComponent(query)}&page=1&limit=10`)
+    fetchWithAuth(`/usuarios?search=${encodeURIComponent(query)}&page=1&limit=10`)
         .then(res => res.json())
         .then(data => {
             usuariosBusquedaPermisos = data.usuarios;
@@ -56,7 +56,7 @@ function cargarRolActualUsuario() {
     usuarioSeleccionadoPermisos = usuariosBusquedaPermisos.find(u => u.id_usuario == userId);
     document.getElementById('rolActualPermisos').classList.remove('hidden');
     document.getElementById('inputRolActualPermisos').value = usuarioSeleccionadoPermisos.rol || '';
-    fetch('http://localhost:3000/api/usuarios/roles')
+    fetchWithAuth('/usuarios/roles')
     .then(res => res.json())
     .then(roles => {
         const selectRol = document.getElementById('selectNuevoRolPermisos');
@@ -83,7 +83,7 @@ function guardarNuevoRolPermisos() {
         btn.textContent = "Guardar cambio de rol";
         return;
     }
-    fetch(`http://localhost:3000/api/usuarios/${usuarioSeleccionadoPermisos.id_usuario}/cambiar-rol`, {
+    fetchWithAuth(`/usuarios/${usuarioSeleccionadoPermisos.id_usuario}/cambiar-rol`, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ nuevoRol })
@@ -139,7 +139,7 @@ function buscarUsuarioParaGrupo() {
         document.getElementById('btnGuardarGrupoGrupos').classList.add('hidden');
         return;
     }
-    fetch(`http://localhost:3000/api/usuarios?search=${encodeURIComponent(query)}&page=1&limit=10`)
+    fetchWithAuth(`/usuarios?search=${encodeURIComponent(query)}&page=1&limit=10`)
         .then(res => res.json())
         .then(data => {
             usuariosBusquedaGrupos = data.usuarios;
@@ -168,7 +168,7 @@ function cargarGrupoActualUsuario() {
     usuarioSeleccionadoGrupos = usuariosBusquedaGrupos.find(u => u.id_usuario == userId);
     document.getElementById('grupoActualGrupos').classList.remove('hidden');
     document.getElementById('inputGrupoActualGrupos').value = usuarioSeleccionadoGrupos.grupo || '';
-    fetch('http://localhost:3000/api/usuarios/grupos')
+    fetchWithAuth('/usuarios/grupos')
     .then(res => res.json())
     .then(grupos => {
         const selectGrupo = document.getElementById('selectNuevoGrupoGrupos');
@@ -195,7 +195,7 @@ function guardarNuevoGrupoGrupos() {
         btn.textContent = "Guardar cambio de grupo";
         return;
     }
-    fetch(`http://localhost:3000/api/usuarios/${usuarioSeleccionadoGrupos.id_usuario}/cambiar-grupo`, {
+    fetchWithAuth(`/usuarios/${usuarioSeleccionadoGrupos.id_usuario}/cambiar-grupo`, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ nuevoGrupo })

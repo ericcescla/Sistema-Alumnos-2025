@@ -32,7 +32,7 @@ document.getElementById('formCambioPassword').onsubmit = async function(e) {
         return;
     }
     // cambiar contraseña en el backend
-    const res = await fetch(`http://localhost:3000/api/usuarios/${usuarioCambioClave}/cambiar-password`, {
+    const res = await fetchWithAuth(`/usuarios/${usuarioCambioClave}/cambiar-password`, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ nuevaPassword })

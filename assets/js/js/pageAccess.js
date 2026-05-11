@@ -16,7 +16,7 @@ async function registrarAccesoApartado(nombreApartado) {
         }
     }
     if (id_usuario && nombre_usuario) {
-        await fetch('http://localhost:3000/api/logs', {
+        await fetchWithAuth('/logs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let pageName = 'Página desconocida';
     
     if (path.includes('cursos.html')) pageName = 'Cursos';
+    else if (path.includes('gestionAcademica/')) pageName = 'Gestión Académica';
     else if (path.includes('gestionAcademica.html')) pageName = 'Gestión Académica';
     else if (path.includes('ofiAlumnos.html')) pageName = 'Oficina de Alumnos';
     else if (path.includes('config.html')) pageName = 'Configuración';

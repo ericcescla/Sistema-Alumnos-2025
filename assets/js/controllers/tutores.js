@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tbody = document.querySelector("#tabla-tutores tbody");
     const contenedorAcciones = document.getElementById("acciones-tutores");
 
-    fetch("/tutores")
+    fetchWithAuth("/tutores")
         .then(res => res.json())
         .then(data => {
             data.forEach(tutor => {
@@ -37,17 +37,13 @@ document.getElementById('btnBuscartutor').addEventListener('click', async () => 
   const dni = dniInput.value.trim();
   const resultadosDiv = document.getElementById('resultadosTutor');
 
-  // Obtener el usuario logueado
-  const usuarioStr = localStorage.getItem('usuario');
-  const usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
-
   // Limpiar resultados previos
   resultadosDiv.innerHTML = "";
 
   if (!dni) return alert('Ingrese un DNI válido');
 
   try {
-    const res = await fetch(`/tutores/buscar?dni=${dni}`);
+    const res = await fetchWithAuth(`/tutores/buscar?dni=${dni}`);
     const datos = await res.json();
 
     if (datos.length === 0) {
@@ -92,20 +88,6 @@ document.getElementById('btnBuscartutor').addEventListener('click', async () => 
     }
 
     mostrarModal(document.getElementById('buscadorTutor'));
-        //logs
-    if (usuario) {
-      await fetch('http://localhost:3000/api/logs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id_operacion: 14,
-          id_usuario: usuario.id_usuario,
-          ip: null,
-          detalle: `El usuario ${usuario.nombre} consultó tutor con DNI: ${dni}`,
-          usuario_afectado: null
-        })
-      });
-    }
 
     // Vaciar input de DNI después de buscar
     dniInput.value = "";

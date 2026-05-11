@@ -10,7 +10,7 @@ document.getElementById('loginForm').onsubmit = async function(e) {
     const msg = document.getElementById('loginMsg');
     msg.textContent = '';
 
-    const res = await fetch('http://localhost:3000/api/usuarios/login', {
+    const res = await fetchWithAuth('/auth/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ usuario, password })
@@ -27,13 +27,22 @@ document.getElementById('loginForm').onsubmit = async function(e) {
     }
 
     if (data.success) {
-        msg.style.color = 'green';
-        msg.textContent = '¡Login exitoso!';
-        localStorage.setItem('usuario', JSON.stringify(data.user));
-        setTimeout(()=>window.location.href="/", 500);
+    msg.style.color = 'green';
+    msg.textContent = '¡Login exitoso!';
+
+    // Guardar usuario
+    localStorage.setItem('usuario', JSON.stringify(data.user));
+
+    // Guardar token que viene del backend
+    localStorage.setItem('token', data.token);
+
+    console.log("Token guardado:", data.token);
+
+    setTimeout(() => window.location.href = "/", 500);
+
     } else {
         msg.style.color = 'red';
-        msg.textContent = data.message || 'Usuario o contraseña incorrectos // mensaje del fronted';
+        msg.textContent = data.error || 'Usuario o contraseña incorrectos // mensaje del fronted';
     }
 };
 
